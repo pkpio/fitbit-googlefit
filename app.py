@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import httplib2
 import sys
 import time
@@ -19,9 +18,8 @@ from googleapiclient.errors import HttpError
 
 
 ########################### Helper functions ############################
-
 def GetFitbitClient(filepath):
-	"""Return an authenticated fitbit client object
+	"""Returns an authenticated fitbit client object
 
 	filepath -- path to file containing oauth credentials in json format
 	"""
@@ -30,7 +28,6 @@ def GetFitbitClient(filepath):
 	client = fitbit.Fitbit(**credentials)
 	logging.debug("Fitbit client created")
 	return client, credentials
-
 
 def UpdateFitbitCredentials(fitbit_client, filepath, credentials):
 	"""Persists new fitbit credentials to local storage
@@ -46,11 +43,10 @@ def UpdateFitbitCredentials(fitbit_client, filepath, credentials):
 			dump = True
 	if dump:
 		logging.debug("Updating Fitbit credentials")
-		yaml.dump(credentials, open(filename, 'w'))
-
+		json.dump(credentials, open(filename, 'w'))
 
 def GetGoogleClient(filepath):
-	"""Return an authenticated google fit client object
+	"""Returns an authenticated google fit client object
 
 	filepath -- path to file containing oauth credentials in json format
 	"""
@@ -61,7 +57,6 @@ def GetGoogleClient(filepath):
 	logging.debug("Google client created")
 	return client
 
-
 def GetDataSource():
 	"""Returns a data source for Google Fit data logging"""
 	return dict(
@@ -71,7 +66,6 @@ def GetDataSource():
 			field=[dict(name='steps',format='integer')]),
 		device=dict(type='watch',manufacturer='fitbit',model='charge-hr',
 			uid='io.pkp.fbit-gfit',version='1'))
-
 
 def GetDataSourceId(dataSource,credsFilepath):
 	"""Returns a data source id for Google Fit
@@ -87,7 +81,6 @@ def GetDataSourceId(dataSource,credsFilepath):
 		dataSource['device']['manufacturer'],
 		dataSource['device']['model'],
 		dataSource['device']['uid']))
-
 
 
 #======================== Main application code =========================
@@ -110,7 +103,6 @@ def main():
 			raise error
 		# Data source doesn't already exist so, create it!
 		googleClient.users().dataSources().create(userId='me',body=GetDataSource()).execute()
-
 
 	# Testing
 	print(googleClient.users().dataSources().list(userId='me').execute())
