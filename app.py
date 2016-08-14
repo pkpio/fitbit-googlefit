@@ -17,6 +17,10 @@ from oauth2client.file import Storage
 from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
 
+########################### Unit conversion constants ###################
+DATE_FORMAT = "%Y-%m-%d"
+POUNDS_PER_KILOGRAM = 2.20462
+METERS_PER_MILE = 1609.34
 
 ########################### Helper functions ############################
 def GetFitbitClient(filepath):
@@ -65,10 +69,12 @@ def GetDataSource(type='steps'):
 	"""
 	if type == 'steps':
 		dataType=dict(name='com.google.step_count.delta',field=[dict(name='steps',format='integer')])
+	elif type == 'distance':
+		dataType=dict(name='com.google.distance.delta',field=[dict(name='distance',format='floatPoint')])
 	elif type == 'weight':
-		dataType=dict(name='com.google.weight',field=[dict(format='floatPoint', name='weight')])
+		dataType=dict(name='com.google.weight',field=[dict(name='weight',format='floatPoint')])
 	elif type == 'heart_rate':
-		dataType=dict(name='com.google.heart_rate.bpm',field=[dict(format='floatPoint', name='bpm')])
+		dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
 	else:
 		raise ValueError("Unexpected data type given!")
 
@@ -94,32 +100,181 @@ def GetDataSourceId(dataSource,credsFilepath):
 		dataSource['device']['model'],
 		dataSource['device']['uid']))
 
+
+
+########################### Type convertor functions ############################
+
 dawnOfTime = datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc())
 
-def epochOfFitbitLog(date, dataPoint, tzinfo):
-	logTimestamp = "{} {}".format(date, dataPoint['time'])
-	logTime = dateutil.parser.parse(logTimestamp).replace(tzinfo=tzinfo)
+def EpochOfFitbitTimestamp(timestamp, tzinfo):
+	"""Returns a epoch time stamp for given date and time in a timezone.
+	Useful for converting fitbit timestamps to epoch values
+
+	timestamp -- date-time stamp in "yyyy-mm-dd hh:mm:ss" (24-hour) format
+	tzinfo -- timezone of the fitbit user
+	"""
+	logTime = dateutil.parser.parse(timestamp).replace(tzinfo=tzinfo)
 	return (logTime - dawnOfTime).total_seconds()
 
 def nano(val):
-	"""Converts a number to nano (str)."""
-	return '%d' % (val * 1e9)
+	"""Converts a number to nano precision"""
+	return int(val * 1e9)
 
-def FitbitStepsToGoogleSteps(date, steps_point, tzinfo):
-	logSecs = epochOfFitbitLog(date, steps_point, tzinfo)
-
-	return dict(
-		dataTypeName='com.google.step_count.delta',
-		endTimeNanos=int(nano(logSecs))+110,
-		startTimeNanos=nano(logSecs),
-		value=[dict(intVal=steps_point['value'])]
-		)
 def daterange(start_date, end_date):
     for n in range(int ((end_date - start_date).days)):
         yield start_date + timedelta(n)
 
+def ConvertFibitStepsPoint(date, data_point, tzinfo):
+	"""Converts a single Fitbit intraday steps data point to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	tzinfo --  time zone information of the user
+	"""
+	timestamp = "{} {}".format(date, data_point['time'])
+	epoch_time = EpochOfFitbitTimestamp(timestamp, tzinfo)
+
+	return dict(
+		dataTypeName='com.google.step_count.delta',
+		startTimeNanos=nano(epoch_time),
+		endTimeNanos=nano(epoch_time)+110,
+		value=[dict(intVal=data_point['value'])]
+		)
+
+def ConvertFibitDistancePoint(date, data_point, tzinfo):
+	"""Converts a single Fitbit intraday distance data point to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	tzinfo --  time zone information of the user
+	"""
+	timestamp = "{} {}".format(date, data_point['time'])
+	epoch_time = EpochOfFitbitTimestamp(timestamp, tzinfo)
+	gfit_distance = data_point['value'] * METERS_PER_MILE
+
+	return dict(
+		dataTypeName='com.google.distance.delta',
+		startTimeNanos=nano(epoch_time),
+		endTimeNanos=nano(epoch_time)+110,
+		value=[dict(fpVal=gfit_distance)]
+		)
+
+def ConvertFibitHRPoint(date, data_point, tzinfo):
+	"""Converts a single Fitbit intraday heart rate data point to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	tzinfo --  time zone information of the user
+	"""
+	timestamp = "{} {}".format(date, data_point['time'])
+	epoch_time = EpochOfFitbitTimestamp(timestamp, tzinfo)
+
+	return dict(
+		dataTypeName='com.google.heart_rate.bpm',
+		startTimeNanos=nano(epoch_time),
+		endTimeNanos=nano(epoch_time)+110,
+		value=[dict(fpVal=data_point['value'])]
+		)
+
+
+
+########################### Remote data writer functions ############################
+
+def WriteToGoogleFit(googleClient,dataSourceId,date_stamp,tzinfo,data_points):
+	"""Write data to google fit
+
+	googleClient -- authenticated google client
+	dataSourceId -- data source id for google fit
+	date_stamp -- fitbit timestamp of the day to which the data corresponds to
+	tzinfo -- time zone info of the fitbit user
+	data_point -- google data points
+
+	"""
+	# max and min timestamps of any data point we will be adding to googlefit - required by gfit API.
+	# we generate datasetId from these so, multiple syncs over same day won't export duplicates - happy coincidence!
+	minLogNs = nano(EpochOfFitbitTimestamp("{} 00:00:00".format(date_stamp),tzinfo))
+	maxLogNs = nano(EpochOfFitbitTimestamp("{} 23:59:59".format(date_stamp),tzinfo))
+	datasetId = '%s-%s' % (minLogNs, maxLogNs)
+
+	googleClient.users().dataSources().datasets().patch(
+			userId='me',
+			dataSourceId=dataSourceId,
+			datasetId=datasetId,
+			body=dict(
+				dataSourceId=dataSourceId,
+				maxEndTimeNs=maxLogNs,
+				minStartTimeNs=minLogNs,
+				point=data_points)
+	).execute()
+
+
+def SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
+	"""
+	Sync Fitbit intraday steps for a particular day to Google fit.
+
+	fitbitClient -- authenticated fitbit client
+	googleClient -- authenticated googlefit client
+	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+	tzinfo -- timezone info of the user in which the steps are recorded
+	dataSourceId -- google fit data sourceid for steps
+	"""
+	# Get intraday steps for date_stamp from fitbit
+	interday_raw = fitbitClient.intraday_time_series('activities/steps',base_date=date_stamp,detail_level='1min')
+	steps_data = interday_raw['activities-steps-intraday']['dataset']
+
+	# convert all fitbit data points to google fit data points
+	googleStepPoints = [ConvertFibitStepsPoint(date_stamp, data_point, tzinfo) for data_point in steps_data]
+
+	# Write a day of fitbit data to Google fit
+	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleStepPoints)
+	print("Synced steps for day : {}".format(date_stamp))
+
+def SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
+	"""
+	Sync Fitbit intraday distance for a particular day to Google fit.
+
+	fitbitClient -- authenticated fitbit client
+	googleClient -- authenticated googlefit client
+	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+	tzinfo -- timezone info of the user in which the steps are recorded
+	dataSourceId -- google fit data sourceid for distance
+	"""
+	# Get intraday distance for date_stamp from fitbit
+	interday_raw = fitbitClient.intraday_time_series('activities/distance',base_date=date_stamp,detail_level='1min')
+	distances_data = interday_raw['activities-distance-intraday']['dataset']
+
+	# convert all fitbit data points to google fit data points
+	googleDistancePoints = [ConvertFibitDistancePoint(date_stamp, data_point, tzinfo) for data_point in distances_data]
+
+	# Write a day of fitbit data to Google fit
+	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleDistancePoints)
+	print("Synced distance for day : {}".format(date_stamp))
+
+def SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
+	"""
+	Sync Fitbit intraday heart rate for a particular day to Google fit.
+
+	fitbitClient -- authenticated fitbit client
+	googleClient -- authenticated googlefit client
+	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+	tzinfo -- timezone info of the user in which the steps are recorded
+	dataSourceId -- google fit data sourceid for heart rate
+	"""
+	# Get intraday distance for date_stamp from fitbit
+	interday_raw = fitbitClient.intraday_time_series('activities/heart',base_date=date_stamp,detail_level='1sec')
+	hr_data = interday_raw['activities-heart-intraday']['dataset']
+
+	# convert all fitbit data points to google fit data points
+	googleHRPoints = [ConvertFibitHRPoint(date_stamp, data_point, tzinfo) for data_point in hr_data]
+
+	# Write a day of fitbit data to Google fit
+	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleHRPoints)
+	print("Synced heart rate for day : {}".format(date_stamp))
+
+
 
 #======================== Main application code =========================
+
 def main():
 	# Arguments parsing
 	parser = argparse.ArgumentParser("Transfer Fitbit data to Google Fit")
@@ -128,10 +283,15 @@ def main():
 	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file")
 	args = parser.parse_args()
 
+	# Reading configuration from config file
+	config = configparser.ConfigParser()
+	config.read('config.ini')
+	params = config['params']
+
 	# Init client objects and setup Google Fit data sources for each type
 	fitbitClient,fitbitCreds = GetFitbitClient(args.fitbit_creds)
 	googleClient = GetGoogleClient(args.google_creds)
-	for dataType in ['steps', 'weight', 'heart_rate']:
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate']:
 		dataSource = GetDataSource(dataType)
 		dataSourceId = GetDataSourceId(dataSource,args.google_creds)
 		try:
@@ -142,53 +302,32 @@ def main():
 			# Data source doesn't already exist so, create it!
 			googleClient.users().dataSources().create(userId='me',body=dataSource).execute()
 	dataSourceIdSteps = GetDataSourceId(GetDataSource('steps'),args.google_creds)
+	dataSourceIdDistance = GetDataSourceId(GetDataSource('distance'),args.google_creds)
 	dataSourceIdWeight = GetDataSourceId(GetDataSource('weight'),args.google_creds)
 	dataSourceIdHR = GetDataSourceId(GetDataSource('heart_rate'),args.google_creds)
 
-	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch
+	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored user's timezone.
 	userProfile = fitbitClient.user_profile_get()
 	tzinfo = dateutil.tz.gettz(userProfile['user']['timezone'])
 
-	# Iterate over a range of dates
-	start_date = date(2015, 5, 17)
-	end_date = date(2016, 8, 14)
+	# Start fetching date for a given range of days
+	start_date = datetime.datetime.strptime(params.get('start_date'), DATE_FORMAT).date()
+	end_date = datetime.datetime.strptime(params.get('end_date'), DATE_FORMAT).date()
 
 	for single_date in daterange(start_date, end_date):
-		day_stamp = single_date.strftime("%Y-%m-%d")
+		date_stamp = single_date.strftime(DATE_FORMAT)
 
-	    # Start getting data from fitbit
-		interday_raw = fitbitClient.intraday_time_series('activities/steps',base_date=day_stamp,detail_level='1min')
-		steps_day = interday_raw['activities-steps'][0]['dateTime']
-		steps_data = interday_raw['activities-steps-intraday']['dataset']
-
-		# Probably not required - we do it on daily basis!
-		steps_data_times = [epochOfFitbitLog(steps_day, log, tzinfo) for log in steps_data]
-		minLogNs = nano(min(steps_data_times))
-		maxLogNs = int(nano(max(steps_data_times)))+200
-
-
-		googleStepPoints = [FitbitStepsToGoogleSteps(steps_day, log, tzinfo) for log in steps_data]
-		datasetId = '%s-%s' % (minLogNs, maxLogNs)
-
-		# Write a day of fitbit data
-		"""
-		print(googleClient.users().dataSources().datasets().get(
-		userId='me',
-		datasetId=datasetId,
-		dataSourceId=dataSourceIdSteps
-		).execute())
-		"""
-		googleClient.users().dataSources().datasets().patch(
-				userId='me',
-				dataSourceId=dataSourceIdSteps,
-				datasetId=datasetId,
-				body=dict(
-					dataSourceId=dataSourceIdSteps,
-					maxEndTimeNs=maxLogNs,
-					minStartTimeNs=minLogNs,
-					point=googleStepPoints)
-		).execute()
-		print("Synced for day : %s"%(steps_day))
+		#---------------------------------- 	steps 		 ------------------------
+		if params.getboolean('sync_steps'):
+			SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceIdSteps)
+		    
+		#---------------------------------- 	distance 		 ------------------------
+		if params.getboolean('sync_distance'):
+			SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceIdDistance)
+		    
+		#---------------------------------- 	heart rate 		 ------------------------
+		if params.getboolean('sync_heartrate'):
+			SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceIdHR)
 
 if __name__ == '__main__':
 	main()
