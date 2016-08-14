@@ -6,10 +6,10 @@ Will add instructions soon. Before that, I should cleanup and finish up the code
 
 # Features
 - [x] Steps - minute level precision
-- [ ] Distance - minute level precision
+- [x] Distance - minute level precision
 - [ ] Calories - minute level precision
 - [ ] Floors - minute level precision
-- [ ] Heart rate - second level precision
+- [x] Heart rate - second level precision
 - [ ] Activities 
   - [ ] Running
   - [ ] Swimming
