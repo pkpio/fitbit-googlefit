@@ -92,6 +92,11 @@ def main():
 			if params.getboolean('sync_weight'):
 				remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
 					helper.GetDataSourceId('weight'))
+
+		#----------------------------------  activity logs  ------------------------
+		if params.getboolean('sync_activities'):
+			remote.SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,start_date)
+
 	finally:
 		# Persist the latest fitbit access tokens for future use
 		helper.UpdateFitbitCredentials(fitbitClient,fitbitCreds)

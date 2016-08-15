@@ -25,6 +25,8 @@ from googleapiclient.errors import HttpError
 
 import convertors as convertor
 
+FITBIT_API_URL = 'https://api.fitbit.com/1'
+
 ########################### Remote data read/write functions ############################
 
 def ReadFromFitbit(api_call,*args,**kwargs):
@@ -75,6 +77,16 @@ def WriteToGoogleFit(googleClient,dataSourceId,date_stamp,tzinfo,data_points):
 				minStartTimeNs=minLogNs,
 				point=data_points)
 	).execute()
+
+def WriteSessionToGoogleFit(googleClient,session_data):
+	"""Write data to google fit
+
+	googleClient -- authenticated google client
+	session_data -- a session data
+	"""
+	googleClient.users().sessions().update(userId='me',sessionId=session_data['id'],body=session_data).execute()
+	
+
 
 def SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
 	"""
@@ -162,4 +174,27 @@ def SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,data
 	# Write a day of fitbit data to Google fit
 	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleWeights)
 	print("Synced weight for day : {}".format(date_stamp))
+
+def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,start_date='',callurl=None):
+	"""
+	Sync activities data starting from a given day from Fitbit to Google fit.
+
+	fitbitClient -- authenticated fitbit client
+	googleClient -- authenticated googlefit client
+	start_date -- timestamp in yyyy-mm-dd format of the start day
+	callurl -- url to fetch activities from
+	"""
+	# Fitbit activities list endpoint is in beta stage. It may break in the future and not directly supported
+	# by the python client library.
+	if not callurl:
+		callurl = '{}/user/-/activities/list.json?afterDate={}&sort=asc&offset=0&limit=20'.format(FITBIT_API_URL,start_date)
+	activities_raw = ReadFromFitbit(fitbitClient.make_request,callurl)
+	activities = activities_raw['activities']
+
+	for activity in activities:
+		WriteSessionToGoogleFit(googleClient, convertor.ConvertFitbitActivityLog(activity))
+	print("Synced {} activities".format(len(activities)))
+
+	if activities_raw['pagination']['next'] != '':
+	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,activities_raw['pagination']['next'])
 

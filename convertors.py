@@ -130,3 +130,41 @@ def ConvertFibitWeightPoint(date, data_point, tzinfo):
 		value=[dict(fpVal=googleWeight)]
 		)
 
+def ConvertFitbitActivityLog(activity):
+	"""Converts a single Fitbit activity log to Google fit session 
+
+	activity -- fitbit activity
+	"""
+	startTimeMillis = EpochOfFitbitTimestamp(activity['startTime'])
+	endTimeMillis = startTimeMillis + activity['duration']
+
+	# Activity type conversion
+	if activity['activityName'] == 'Walk':
+		activityType = 7
+	elif activity['activityName'] == 'Run' or activity['activityName'] == 'Running':
+		activityType = 8
+	elif activity['activityName'] == 'Volleyball':
+		activityType = 89
+	elif activity['activityName'] == 'Swimming':
+		activityType = 82
+	elif activity['activityName'] == 'Badminton':
+		activityType = 10
+	elif activity['activityName'] == 'Biking':
+		activityType = 1
+	elif activity['activityName'] == 'Weightlifting' or activity['activityName'] == 'Workout':
+		activityType = 97
+	else:
+		activityType = 8
+
+	return dict(
+		modifiedTimeMillis=int((time.time() * 1000)),
+		startTimeMillis=startTimeMillis,
+		endTimeMillis=endTimeMillis,
+		activeTimeMillis=activity['duration'],
+		description='A Fitbit activity of type - {}'.format(activity['logType']),
+		activityType=activityType,
+		application=dict(name='Fbit-Gfit',detailsUrl=''),
+		id='io.pkp.fbit-gfit:fitbit:{}'.format(activity['logId']),
+		name=activity['activityName']
+		)
+
