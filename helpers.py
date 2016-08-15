@@ -21,6 +21,9 @@ from oauth2client.file import Storage
 from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
 
+fitbitCredsFile = 'auth/fitbit.json'
+googleCredsFile = 'auth/google.json'
+
 def GetFitbitClient(filepath):
 	"""Returns an authenticated fitbit client object
 
@@ -32,7 +35,7 @@ def GetFitbitClient(filepath):
 	logging.debug("Fitbit client created")
 	return client, credentials
 
-def UpdateFitbitCredentials(fitbitClient, filepath, credentials):
+def UpdateFitbitCredentials(fitbitClient, credentials, filepath=fitbitCredsFile):
 	"""Persists new fitbit credentials to local storage
 
 	fitbitClient -- fitbit client object that contains the latest credentials
@@ -86,14 +89,12 @@ def GetDataSource(type='steps'):
 		device=dict(type='watch',manufacturer='fitbit',model=model,
 			uid='io.pkp.fbit-gfit',version='1'))
 
-googleCredsFilePath = 'auth/google.json'
-
-def SetGoogleCredsFilePath(credsFilepath):
+def SetCredsFilePaths(fitbitFilepath, googleFilepath):
 	"""Set the default google creds file path. Allows to call GetDataSourceId with less params"""
-	global googleCredsFilePath
-	googleCredsFilePath = credsFilepath
+	global fitbitCredsFile,googleCredsFile
+	fitbitCredsFile,googleCredsFile = fitbitFilepath, googleFilepath
 
-def GetDataSourceId(dataType,credsFilepath=googleCredsFilePath):
+def GetDataSourceId(dataType,credsFilepath=googleCredsFile):
 	"""Returns a data source id for Google Fit
 
 	dataType -- type of data. Possible options: steps, weight, heart_rate

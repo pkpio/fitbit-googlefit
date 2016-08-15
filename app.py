@@ -37,10 +37,14 @@ def main():
 	config.read('config.ini')
 	params = config['params']
 
-	# Init client objects and setup Google Fit data sources for each type
+	# Init client objects
 	fitbitClient,fitbitCreds = helper.GetFitbitClient(args.fitbit_creds)
 	googleClient = helper.GetGoogleClient(args.google_creds)
-	helper.SetGoogleCredsFilePath(args.google_creds)
+
+	# Save creds file path to helper class - saves some arguments in future calls
+	helper.SetCredsFilePaths(args.fitbit_creds,args.google_creds)
+
+	# setup Google Fit data sources for each data type supported
 	for dataType in ['steps', 'distance', 'weight', 'heart_rate']:
 		dataSourceId = helper.GetDataSourceId(dataType,args.google_creds)
 		try:
@@ -58,24 +62,33 @@ def main():
 	# Start fetching date for a given range of days
 	start_date = datetime.datetime.strptime(params.get('start_date'), DATE_FORMAT).date()
 	end_date = datetime.datetime.strptime(params.get('end_date'), DATE_FORMAT).date()
-	for single_date in convertor.daterange(start_date, end_date):
-		date_stamp = single_date.strftime(DATE_FORMAT)
 
-		#----------------------------------     steps      ------------------------
-		if params.getboolean('sync_steps'):
-			remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('steps'))
-		    
-		#----------------------------------     distance   ------------------------
-		if params.getboolean('sync_distance'):
-			remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('distance'))
-		    
-		#----------------------------------     heart rate ------------------------
-		if params.getboolean('sync_heartrate'):
-			remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('heart_rate'))
+	try:
+		for single_date in convertor.daterange(start_date, end_date):
+			date_stamp = single_date.strftime(DATE_FORMAT)
 
-		#----------------------------------     weight     ------------------------
-		if params.getboolean('sync_weight'):
-			remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('weight'))
+			#----------------------------------     steps      ------------------------
+			if params.getboolean('sync_steps'):
+				remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
+					helper.GetDataSourceId('steps'))
+			    
+			#----------------------------------     distance   ------------------------
+			if params.getboolean('sync_distance'):
+				remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
+					helper.GetDataSourceId('distance'))
+			    
+			#----------------------------------     heart rate ------------------------
+			if params.getboolean('sync_heartrate'):
+				remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
+					helper.GetDataSourceId('heart_rate'))
+
+			#----------------------------------     weight     ------------------------
+			if params.getboolean('sync_weight'):
+				remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
+					helper.GetDataSourceId('weight'))
+	finally:
+		# Persist the latest fitbit access tokens for future use
+		helper.UpdateFitbitCredentials(fitbitClient,fitbitCreds)
 
 
 if __name__ == '__main__':
