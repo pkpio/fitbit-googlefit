@@ -59,6 +59,9 @@ def WriteToGoogleFit(googleClient,dataSourceId,date_stamp,tzinfo,data_points):
 	# we generate datasetId from these so, multiple syncs over same day won't export duplicates - happy coincidence!
 	minLogNs = convertor.nano(convertor.EpochOfFitbitTimestamp("{} 00:00:00".format(date_stamp),tzinfo))
 	maxLogNs = convertor.nano(convertor.EpochOfFitbitTimestamp("{} 23:59:59".format(date_stamp),tzinfo))
+
+	# Incase a data point occurs exactly at 23:59:59, endTimeNanos of that point will be +110
+	maxLogNs = max(maxLogNs, max([point['endTimeNanos'] for point in data_points]))
 	datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
 	googleClient.users().dataSources().datasets().patch(
