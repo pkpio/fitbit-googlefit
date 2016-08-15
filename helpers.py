@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """
 helper methods to abstract few trivial / unchanging actions.
+
+__author__ = "Praveen Kumar Pendyala"
+__email__ = "mail@pkp.io"
 """
 import httplib2
 import sys

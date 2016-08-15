@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+"""
+Main class / entry point for the application 
+
+__author__ = "Praveen Kumar Pendyala"
+__email__ = "mail@pkp.io"
+"""
 import httplib2
 import sys
 import time

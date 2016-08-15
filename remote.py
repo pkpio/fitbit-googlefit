@@ -1,5 +1,8 @@
 """
 Methods for remote api calls and synchronization from Fitbit to Google Fit
+
+__author__ = "Praveen Kumar Pendyala"
+__email__ = "mail@pkp.io"
 """
 import httplib2
 import sys

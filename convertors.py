@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-
 """
 Methods for data type conversions. All fitbit conversion method convert 
 to google fit compatible data types
+
+__author__ = "Praveen Kumar Pendyala"
+__email__ = "mail@pkp.io"
 """
 import httplib2
 import sys
