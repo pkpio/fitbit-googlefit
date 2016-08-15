@@ -63,26 +63,19 @@ def main():
 
 		#---------------------------------- 	steps 		 ------------------------
 		if params.getboolean('sync_steps'):
-			remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-				helper.GetDataSourceId('steps'))
+			remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('steps'))
 		    
 		#---------------------------------- 	distance 		 ------------------------
 		if params.getboolean('sync_distance'):
-			remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-				helper.GetDataSourceId('distance'))
+			remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('distance'))
 		    
 		#---------------------------------- 	heart rate 		 ------------------------
 		if params.getboolean('sync_heartrate'):
-			remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-				helper.GetDataSourceId('heart_rate'))
+			remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('heart_rate'))
 
 		#---------------------------------- 	weight 		 ------------------------
-		# Note : fetching weight logs for each day is inefficient. 
-		# We will stick to this to maintain uniformity and avoid possible duplicates when using a variable range.
-		# why duplicates? - datasetId in google fit write is generated from the range used!
 		if params.getboolean('sync_weight'):
-			remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-				helper.GetDataSourceId('weight'))
+			remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('weight'))
 
 
 if __name__ == '__main__':
