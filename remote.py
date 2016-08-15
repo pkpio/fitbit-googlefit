@@ -137,7 +137,7 @@ def SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSour
 
 def SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
 	"""
-	Sync weight data for a range from Fitbit to Google fit.
+	Sync weight data for a given day from Fitbit to Google fit.
 
 	fitbitClient -- authenticated fitbit client
 	googleClient -- authenticated googlefit client

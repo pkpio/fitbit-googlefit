@@ -61,19 +61,19 @@ def main():
 	for single_date in convertor.daterange(start_date, end_date):
 		date_stamp = single_date.strftime(DATE_FORMAT)
 
-		#---------------------------------- 	steps 		 ------------------------
+		#----------------------------------     steps      ------------------------
 		if params.getboolean('sync_steps'):
 			remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('steps'))
 		    
-		#---------------------------------- 	distance 		 ------------------------
+		#----------------------------------     distance   ------------------------
 		if params.getboolean('sync_distance'):
 			remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('distance'))
 		    
-		#---------------------------------- 	heart rate 		 ------------------------
+		#----------------------------------     heart rate ------------------------
 		if params.getboolean('sync_heartrate'):
 			remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('heart_rate'))
 
-		#---------------------------------- 	weight 		 ------------------------
+		#----------------------------------     weight     ------------------------
 		if params.getboolean('sync_weight'):
 			remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,helper.GetDataSourceId('weight'))
 
