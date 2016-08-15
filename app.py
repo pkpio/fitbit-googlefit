@@ -109,7 +109,6 @@ dawnOfTime = datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc())
 def EpochOfFitbitTimestamp(timestamp, tzinfo):
 	"""Returns a epoch time stamp for given date and time in a timezone.
 	Useful for converting fitbit timestamps to epoch values
-
 	timestamp -- date-time stamp in "yyyy-mm-dd hh:mm:ss" (24-hour) format
 	tzinfo -- timezone of the fitbit user
 	"""
@@ -305,6 +304,35 @@ def main():
 	dataSourceIdDistance = GetDataSourceId(GetDataSource('distance'),args.google_creds)
 	dataSourceIdWeight = GetDataSourceId(GetDataSource('weight'),args.google_creds)
 	dataSourceIdHR = GetDataSourceId(GetDataSource('heart_rate'),args.google_creds)
+
+	# Testing
+	# activities = fitbitClient.make_request(
+	# 	'https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2016-08-15&sort=asc&offset=0&limit=10')['activities']
+	# for activity in activities:
+	# 	act_name = activity['activityName']
+	# 	if act_name == 'Run':
+	# 		startTimeMillis = 1471252440000
+	# 		# unix_time_seconds(time.strptime(activity['startTime'], '%Y-%m-%dT%H:%M:%S.%f+02:00').datetime())*1000-2*60*60*1000
+	# 		endTimeMillis = startTimeMillis + activity['duration'] + 100*1000
+
+	# 		print(googleClient.users().sessions().update(
+	# 			userId='me',
+	# 			sessionId='io.pkp.fbit-gfit:fitbit:{}'.format(activity['logId']),
+	# 			body=dict(
+	# 				modifiedTimeMillis=str(int(round(time.time() * 1000))),
+	# 				endTimeMillis=str(endTimeMillis),
+	# 				description='A Fitbit activity of type - {}'.format(activity['logType']),
+	# 				activityType=8,
+	# 				application=dict(
+	# 					name='Fbit-Gfit',
+	# 					detailsUrl=''
+	# 					),
+	# 				startTimeMillis=str(startTimeMillis),
+	# 				activeTimeMillis=activity['duration'] + 100*1000,
+	# 				id='io.pkp.fbit-gfit:fitbit:{}'.format(activity['logId']),
+	# 				name=activity['activityName'])
+	# 			).execute())
+	# 		exit()
 
 	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored user's timezone.
 	userProfile = fitbitClient.user_profile_get()
