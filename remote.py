@@ -61,7 +61,8 @@ def WriteToGoogleFit(googleClient,dataSourceId,date_stamp,tzinfo,data_points):
 	maxLogNs = convertor.nano(convertor.EpochOfFitbitTimestamp("{} 23:59:59".format(date_stamp),tzinfo))
 
 	# Incase a data point occurs exactly at 23:59:59, endTimeNanos of that point will be +110
-	maxLogNs = max(maxLogNs, max([point['endTimeNanos'] for point in data_points]))
+	if len(data_points) > 0:
+		maxLogNs = max(maxLogNs, max([point['endTimeNanos'] for point in data_points]))
 	datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
 	googleClient.users().dataSources().datasets().patch(
