@@ -4,6 +4,9 @@ Export all your Fitbit data to Google Fit.
 
 Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fine granularity for the data.
 
+![Fitbit Steps](/screenshots/fitbit_steps.png "Fitbit steps")
+![GoogleFit Steps](/screenshots/googlefit_steps.png "Google Fit steps")
+
 
 # Features
 ----------------------------
