@@ -28,11 +28,16 @@ Export all your Fitbit data to Google Fit. Unlike other alternatives such as fit
 ----------------------------
 You have to register your own Fitbit and Google Fit applications. This setup is a one time thing.
 
-1. Fitbit setup
+1. Install dependencies
+-------------------
+This is python3 application so install all the dependencies using ```sudo pip3 install -r requirements.txt```
+
+
+2. Fitbit setup
 -------------------
 All instructions below must be performed using the same Fitbit account you want to sync with Google Fit.
 
-- Register a new Fitbit application at https://dev.fitbit.com/apps/new
+- Register a new Fitbit application on [Fitbit Developers Console](https://dev.fitbit.com/apps/new)
 - Use the information below:
 
 ```
@@ -54,6 +59,11 @@ Note :
 - This opens a popup in the browser. Authenticate and done!
 
 
-2. Google Fit setup
+3. Google Fit setup
 -------------------
-
+- Go to the [Google Developers Console](https://console.developers.google.com/flows/enableapi?apiid=fitness)
+- Click ```Continue```. Then select ```Go to credentials``` and select ```Client ID```
+- Under Application type, select ```Other``` and hit ```Create```
+- Make a note of ```client ID``` and ```client secret```
+- Go to /auth and run ```python3 auth_google.py <client-id> <client-secret>```
+- This opens a popup in the browser. Authenticate and done!
