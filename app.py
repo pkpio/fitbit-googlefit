@@ -54,7 +54,7 @@ def main():
 
 	# setup Google Fit data sources for each data type supported
 	for dataType in ['steps', 'distance', 'weight', 'body_fat', 'heart_rate', 'activity']:
-		dataSourceId = helper.GetDataSourceId(dataType,args.google_creds)
+		dataSourceId = helper.GetDataSourceId(dataType)
 		try:
 			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
 		except HttpError as error:
@@ -79,28 +79,23 @@ def main():
 
 			#----------------------------------     steps      ------------------------
 			if params.getboolean('sync_steps'):
-				remote.SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-					helper.GetDataSourceId('steps'))
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'steps',date_stamp,tzinfo)
 			    
 			#----------------------------------     distance   ------------------------
 			if params.getboolean('sync_distance'):
-				remote.SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-					helper.GetDataSourceId('distance'))
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'distance',date_stamp,tzinfo)
 			    
 			#----------------------------------     heart rate ------------------------
 			if params.getboolean('sync_heartrate'):
-				remote.SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-					helper.GetDataSourceId('heart_rate'))
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'heart_rate',date_stamp,tzinfo)
 
 			#----------------------------------     weight     ------------------------
 			if params.getboolean('sync_weight'):
-				remote.SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-					helper.GetDataSourceId('weight'))
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'weight',date_stamp,tzinfo)
 
-			#----------------------------------     weight     ------------------------
+			#----------------------------------     body fat   ------------------------
 			if params.getboolean('sync_body_fat'):
-				remote.SyncFitbitBodyfatToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,
-					helper.GetDataSourceId('body_fat'))
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'body_fat',date_stamp,tzinfo)
 
 		#----------------------------------  activity logs  ------------------------
 		if params.getboolean('sync_activities'):

@@ -33,7 +33,7 @@ METERS_PER_MILE = 1609.34
 
 dawnOfTime = datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc())
 
-def EpochOfFitbitTimestamp(timestamp, tzinfo=None):
+def EpochOfFitbitTimestamp(timestamp, tzinfo):
 	"""Returns a epoch time stamp (in milliseconds). Useful for converting fitbit timestamps to epoch values.
 
 	timestamp -- date-time stamp as a string "yyyy-mm-dd hh:mm:ss" (24-hour) or any other standard format
@@ -59,6 +59,27 @@ def daterange(start_date, end_date, step=1):
 
 
 #------------------------ Fitbit to Google Fit convertors ----------------------------
+
+def ConvertFibitPoint(date, data_point, dataType, tzinfo):
+	"""Converts a single Fitbit data point of a given data type to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	dataType -- data type of the point
+	tzinfo --  time zone information of the user
+	"""
+	if dataType == 'steps':
+		return ConvertFibitStepsPoint(date, data_point, tzinfo)
+	elif dataType == 'distance':
+		return ConvertFibitDistancePoint(date, data_point, tzinfo)
+	elif dataType == 'heart_rate':
+		return ConvertFibitHRPoint(date, data_point, tzinfo)
+	elif dataType == 'weight':
+		return ConvertFibitWeightPoint(date, data_point, tzinfo)
+	elif dataType == 'body_fat':
+		return ConvertFibitBodyfatPoint(date, data_point, tzinfo)
+	else:
+		raise ValueError("Unexpected data type given!")
 
 def ConvertFibitStepsPoint(date, data_point, tzinfo):
 	"""Converts a single Fitbit intraday steps data point to Google fit data point
