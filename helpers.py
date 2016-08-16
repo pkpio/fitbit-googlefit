@@ -80,6 +80,9 @@ def GetDataSource(type='steps'):
 	elif type == 'weight':
 		dataType=dict(name='com.google.weight',field=[dict(name='weight',format='floatPoint')])
 		model='aria' # weighing machine
+	elif type == 'body_fat':
+		dataType=dict(name='com.google.body.fat.percentage',field=[dict(name='fat',format='floatPoint')])
+		model='aria' # weighing machine
 	elif type == 'heart_rate':
 		dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
 	elif type == 'activity':

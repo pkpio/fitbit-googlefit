@@ -130,6 +130,23 @@ def ConvertFibitWeightPoint(date, data_point, tzinfo):
 		value=[dict(fpVal=googleWeight)]
 		)
 
+def ConvertFibitBodyfatPoint(date, data_point, tzinfo):
+	"""Converts a single Fitbit body fat percentage data point to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	tzinfo --  time zone information of the user
+	"""
+	timestamp = "{} {}".format(date, data_point['time'])
+	epoch_time_nanos = nano(EpochOfFitbitTimestamp(timestamp, tzinfo))
+
+	return dict(
+		dataTypeName='com.google.body.fat.percentage',
+		#startTimeNanos=epoch_time_nanos, -- instantaneous reading so startTime shouldn't be set
+		endTimeNanos=epoch_time_nanos+110,
+		value=[dict(fpVal=data_point['fat'])]
+		)
+
 def ConvertFitbitActivityLog(activity):
 	"""Converts a single Fitbit activity log to Google fit session 
 
