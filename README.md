@@ -67,3 +67,13 @@ Note :
 - Make a note of ```client ID``` and ```client secret```
 - ```cd /auth``` and run ```python3 auth_google.py <client-id> <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
+
+
+# Usage
+----------------------------
+Update the ```config.ini``` with own choices and start the sync using ```python3 app.py```
+
+Note : 
+--
+1. Get command line help using the -h flag. 
+2. Arguments passed through command-line take higher priority over ```config.ini``` values.
