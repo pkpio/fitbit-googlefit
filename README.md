@@ -45,7 +45,9 @@ OAuth 2.0 Application Type : Personal
 Callback URL : http://localhost:8080/
 Default Access Type : Read-Only
 
-Note : Use your own information for ```--``` but make sure you copy the Callback URL exactly (including the last /)
+Note : 
+1. Use your own information for fields marked --
+2. Make sure you copy the Callback URL exactly (including the last /)
 ```
 - Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
 - Go to /auth and run ```python3 auth_fitbit.py <client-id> <client-secret>```
