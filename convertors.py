@@ -33,7 +33,7 @@ METERS_PER_MILE = 1609.34
 
 dawnOfTime = datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc())
 
-def EpochOfFitbitTimestamp(timestamp, tzinfo):
+def EpochOfFitbitTimestamp(timestamp, tzinfo=None):
 	"""Returns a epoch time stamp (in milliseconds). Useful for converting fitbit timestamps to epoch values.
 
 	timestamp -- date-time stamp as a string "yyyy-mm-dd hh:mm:ss" (24-hour) or any other standard format
@@ -78,6 +78,8 @@ def ConvertFibitPoint(date, data_point, dataType, tzinfo):
 		return ConvertFibitWeightPoint(date, data_point, tzinfo)
 	elif dataType == 'body_fat':
 		return ConvertFibitBodyfatPoint(date, data_point, tzinfo)
+	elif dataType == 'calories':
+		return ConvertFibitCaloriesPoint(date, data_point, tzinfo)
 	else:
 		raise ValueError("Unexpected data type given!")
 
@@ -133,6 +135,23 @@ def ConvertFibitHRPoint(date, data_point, tzinfo):
 		value=[dict(fpVal=data_point['value'])]
 		)
 
+def ConvertFibitCaloriesPoint(date, data_point, tzinfo):
+	"""Converts a single Fitbit intraday heart rate data point to Google fit data point
+
+	date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+	data_point -- a single Fitbit intraday step data point
+	tzinfo --  time zone information of the user
+	"""
+	timestamp = "{} {}".format(date, data_point['time'])
+	epoch_time_nanos = nano(EpochOfFitbitTimestamp(timestamp, tzinfo))
+
+	return dict(
+		dataTypeName='com.google.calories.expended',
+		startTimeNanos=epoch_time_nanos,
+		endTimeNanos=epoch_time_nanos+110,
+		value=[dict(fpVal=data_point['value'])]
+		)
+
 def ConvertFibitWeightPoint(date, data_point, tzinfo):
 	"""Converts a single Fitbit weight log to Google fit data point
 
@@ -163,7 +182,7 @@ def ConvertFibitBodyfatPoint(date, data_point, tzinfo):
 
 	return dict(
 		dataTypeName='com.google.body.fat.percentage',
-		#startTimeNanos=epoch_time_nanos, -- instantaneous reading so startTime shouldn't be set
+		startTimeNanos=epoch_time_nanos,
 		endTimeNanos=epoch_time_nanos+110,
 		value=[dict(fpVal=data_point['fat'])]
 		)

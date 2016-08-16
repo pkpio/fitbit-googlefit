@@ -53,7 +53,7 @@ def main():
 	helper.SetCredsFilePaths(args.fitbit_creds,args.google_creds)
 
 	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'body_fat', 'heart_rate', 'activity']:
+	for dataType in ['steps', 'distance', 'weight', 'body_fat', 'heart_rate', 'calories', 'activity']:
 		dataSourceId = helper.GetDataSourceId(dataType)
 		try:
 			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
@@ -76,6 +76,7 @@ def main():
 	try:
 		for single_date in convertor.daterange(start_date, end_date):
 			date_stamp = single_date.strftime(DATE_FORMAT)
+			print('------------------------------   {}  -------------------------'.format(date_stamp))
 
 			#----------------------------------     steps      ------------------------
 			if params.getboolean('sync_steps'):
@@ -96,6 +97,12 @@ def main():
 			#----------------------------------     body fat   ------------------------
 			if params.getboolean('sync_body_fat'):
 				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'body_fat',date_stamp,tzinfo)
+
+			#----------------------------------     calories   ------------------------
+			if params.getboolean('sync_calories'):
+				remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'calories',date_stamp,tzinfo)
+
+			print('')
 
 		#----------------------------------  activity logs  ------------------------
 		if params.getboolean('sync_activities'):

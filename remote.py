@@ -94,7 +94,7 @@ def SyncFitbitToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
 	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
 	tzinfo -- timezone info of Fitbit user
 	"""
-	if dataType in ('steps','distance','heart_rate'):
+	if dataType in ('steps','distance','heart_rate','calories'):
 		return SyncFitbitIntradayToGoogleFit(fitbitClient, googleClient, dataType, date_stamp, tzinfo)
 	elif dataType in ('weight','body_fat'):
 		return SyncFitbitLogToGoogleFit(fitbitClient, googleClient, dataType, date_stamp, tzinfo)
@@ -117,6 +117,8 @@ def SyncFitbitIntradayToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,
 		res_path,detail_level,resp_id  = 'activities/distance','1min','activities-distance-intraday'
 	elif dataType == 'heart_rate':
 		res_path,detail_level,resp_id  = 'activities/heart','1sec','activities-heart-intraday'
+	elif dataType == 'calories':
+		res_path,detail_level,resp_id  = 'activities/calories','1min','activities-calories-intraday'
 	else:
 		raise ValueError("Unexpected data type given!")
 	dataSourceId = helper.GetDataSourceId(dataType)
@@ -131,7 +133,7 @@ def SyncFitbitIntradayToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,
 
 	# Write a day of fitbit data to Google fit
 	WriteToGoogleFit(googleClient, dataSourceId, googlePoints)
-	print("Synced {} for day : {}".format(dataType,date_stamp))
+	print("synced {}".format(dataType))
 
 def SyncFitbitLogToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
 	"""
@@ -159,7 +161,18 @@ def SyncFitbitLogToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinf
 
 	# Write a day of fitbit data to Google fit
 	WriteToGoogleFit(googleClient, dataSourceId, googlePoints)
-	print("Synced {} for day : {}".format(dataType,date_stamp))
+	print("synced {}".format(dataType))
+
+def SyncFitbitSleepToGoogleFit(fitbitClient,googleClient,dataSourceId,date_stamp):
+	"""
+	Sync sleep data for a given day from Fitbit to Google fit.
+
+	fitbitClient -- authenticated fitbit client
+	googleClient -- authenticated googlefit client
+	dataSourceId -- google fit data sourceid for activity segment
+	date_stamp -- timestamp in yyyy-mm-dd format of the start day
+	"""
+	raise NotImplementedError('Feature not implemented yet!')
 
 def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start_date='',callurl=None):
 	"""
@@ -178,6 +191,7 @@ def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start
 	activities_raw = ReadFromFitbit(fitbitClient.make_request,callurl)
 	activities = activities_raw['activities']
 
+	startTimeMillis,endTimeMillis = [],[]
 	for activity in activities:
 		# 1. write a fit session about the activity 
 		google_session = convertor.ConvertFitbitActivityLog(activity)
@@ -191,8 +205,14 @@ def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start
 			value=[dict(intVal=google_session['activityType'])]
 			)
 		WriteToGoogleFit(googleClient, dataSourceId, [activity_segment])
-	print("Synced {} activities between {} and {}".format(len(activities)),
-		google_session['startTimeMillis'],google_session['endTimeMillis'])
+
+		# Just for user output
+		startTimeMillis.append(google_session['startTimeMillis'])
+		endTimeMillis.append(google_session['endTimeMillis'])
+
+	print("Synced {} activities : {} -- {}".format(len(activities),
+		datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
+		datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
 
 	if activities_raw['pagination']['next'] != '':
 	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,dataSourceId,

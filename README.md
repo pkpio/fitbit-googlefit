@@ -18,6 +18,7 @@ Will add instructions soon. Before that, I should cleanup and finish up the code
   - [x] Walking
   - [x] Badminton
   - [x] Workouts (as weightlifting)
-- [ ] Calories - minute level precision
+- [x] Calories - minute level precision
 - [ ] Floors - minute level precision
+- [ ] Elevation - minute level precision
 - [ ] Food logs
