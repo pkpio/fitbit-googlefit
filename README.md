@@ -55,7 +55,7 @@ Note :
 2. Make sure you copy the Callback URL exactly (including the last /)
 ```
 - Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
-- Go to /auth and run ```python3 auth_fitbit.py <client-id> <client-secret>```
+- ```cd /auth``` and run ```python3 auth_fitbit.py <client-id> <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
@@ -65,5 +65,5 @@ Note :
 - Click ```Continue```. Then select ```Go to credentials``` and select ```Client ID```
 - Under Application type, select ```Other``` and hit ```Create```
 - Make a note of ```client ID``` and ```client secret```
-- Go to /auth and run ```python3 auth_google.py <client-id> <client-secret>```
+- ```cd /auth``` and run ```python3 auth_google.py <client-id> <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
