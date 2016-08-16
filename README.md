@@ -1,10 +1,10 @@
-# fitbit-googlefit
-===============================
-Export Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer.com, this aims to offer very fine granularity for data. Check all the features, setup and usage instructions below.
+# Introduction
+----------------------------
+Export all your Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer.com, this aims to offer very fine granularity for data. Check all the features, setup and usage instructions below.
 
 
 # Features
-===============================
+----------------------------
 - [x] Steps - minute level precision
 - [x] Distance - minute level precision
 - [x] Heart rate - second level precision
@@ -25,7 +25,7 @@ Export Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer
 
 
 # Setup
-===============================
+----------------------------
 You have to register your own Fitbit and Google Fit applications. This setup is a one time thing.
 
 1. Fitbit setup
@@ -55,5 +55,3 @@ Note : Use your own information for ```--``` but make sure you copy the Callback
 2. Google Fit setup
 -------------------
 
-
-Successf
