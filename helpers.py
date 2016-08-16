@@ -52,7 +52,7 @@ def UpdateFitbitCredentials(fitbitClient, credentials, filepath=fitbitCredsFile)
 			dump = True
 	if dump:
 		logging.debug("Updating Fitbit credentials")
-		json.dump(credentials, open(filename, 'w'))
+		json.dump(credentials, open(filepath, 'w'))
 
 def GetGoogleClient(filepath):
 	"""Returns an authenticated google fit client object
