@@ -1,6 +1,8 @@
 # Introduction
 ----------------------------
-Export all your Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer.com, this aims to offer very fine granularity for data. Check all the features, setup and usage instructions below.
+Export all your Fitbit data to Google Fit. 
+
+Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fine granularity for the data.
 
 
 # Features
