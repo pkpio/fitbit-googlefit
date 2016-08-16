@@ -32,10 +32,12 @@ DATE_FORMAT = "%Y-%m-%d"
 
 def main():
 	# Arguments parsing
-	parser = argparse.ArgumentParser("Transfer Fitbit data to Google Fit")
+	parser = argparse.ArgumentParser("All arguments are optional and read from config.ini when not passed.")
 	parser.add_argument("-d", "--debug", action="count", default=0, help="Increase debugging level")
-	parser.add_argument("-g", "--google-creds", default="auth/google.json", help="Google credentials file")
-	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file")
+	parser.add_argument("-s", "--start-date", default="", help="Start date for sync in YYYY-MM-DD format")
+	parser.add_argument("-e", "--end-date", default="", help="End data for sync in YYYY-MM-DD format")
+	parser.add_argument("-g", "--google-creds", default="auth/google.json", help="Google credentials file. Obtain using auth/auth_google.py")
+	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file. Obtain using auth/auth_fitbit.py")
 	args = parser.parse_args()
 
 	# Reading configuration from config file
@@ -66,8 +68,10 @@ def main():
 	tzinfo = dateutil.tz.gettz(userProfile['user']['timezone'])
 
 	# Start fetching date for a given range of days
-	start_date = datetime.datetime.strptime(params.get('start_date'), DATE_FORMAT).date()
-	end_date = datetime.datetime.strptime(params.get('end_date'), DATE_FORMAT).date()
+	start_date_str = args.start_date if args.start_date != '' else params.get('start_date')
+	end_date_str = args.end_date if args.end_date != '' else params.get('end_date')
+	start_date = datetime.datetime.strptime(start_date_str, DATE_FORMAT).date()
+	end_date = datetime.datetime.strptime(end_date_str, DATE_FORMAT).date()
 
 	try:
 		for single_date in convertor.daterange(start_date, end_date):

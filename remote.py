@@ -199,7 +199,8 @@ def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start
 			value=[dict(intVal=google_session['activityType'])]
 			)
 		WriteToGoogleFit(googleClient, dataSourceId, [activity_segment])
-	print("Synced {} activities".format(len(activities)))
+	print("Synced {} activities between {} and {}".format(len(activities)),
+		google_session['startTimeMillis'],google_session['endTimeMillis'])
 
 	if activities_raw['pagination']['next'] != '':
 	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,dataSourceId,
