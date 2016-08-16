@@ -9,6 +9,7 @@ Will add instructions soon. Before that, I should cleanup and finish up the code
 - [x] Distance - minute level precision
 - [x] Heart rate - second level precision
 - [x] Weight
+- [x] Body fat
 - [x] Activities 
   - [x] Running
   - [x] Swimming
