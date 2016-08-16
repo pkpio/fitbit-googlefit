@@ -1,7 +1,6 @@
 # fitbit-googlefit
 ===============================
-Export Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer.com, this aims to offer very fine granularity for data.
-Check all the features, setup and usage instructions below.
+Export Fitbit data to Google Fit. Unlike other alternatives such as fitnessyncer.com, this aims to offer very fine granularity for data. Check all the features, setup and usage instructions below.
 
 
 # Features
@@ -45,14 +44,16 @@ Organization Website : --
 OAuth 2.0 Application Type : Personal
 Callback URL : http://localhost:8080/
 Default Access Type : Read-Only
+
+Note : Use your own information for ```--``` but make sure you copy the Callback URL exactly (including the last /)
 ```
-Note : Use your information for fields marked ```--``` and make sure you copy the Callback URL exactly (including the last /)
-- Hit save and make a note of
-	- OAuth 2.0 Client ID
-	- Client Secret
+- Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
 - Go to /auth and run ```python3 auth_fitbit.py <client-id> <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
 2. Google Fit setup
 -------------------
+
+
+Successf
