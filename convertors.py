@@ -179,9 +179,9 @@ def ConvertFitbitActivityLog(activity):
 	# Activity type conversion
 	if activity['activityName'] == 'Walk':
 		activityType = 7
-	elif activity['activityName'] == 'Run' or activity['activityName'] == 'Running':
+	elif activity['activityName'] in ('Run','Running'):
 		activityType = 8
-	elif activity['activityName'] == 'Volleyball':
+	elif activity['activityName'] in ('Volleyball','Sport'):
 		activityType = 89
 	elif activity['activityName'] == 'Swimming':
 		activityType = 82
@@ -189,7 +189,7 @@ def ConvertFitbitActivityLog(activity):
 		activityType = 10
 	elif activity['activityName'] == 'Biking':
 		activityType = 1
-	elif activity['activityName'] == 'Weightlifting' or activity['activityName'] == 'Workout':
+	elif activity['activityName'] in ('Weightlifting','Workout'):
 		activityType = 97
 	else:
 		activityType = 8
