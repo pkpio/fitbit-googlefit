@@ -51,7 +51,7 @@ def main():
 	helper.SetCredsFilePaths(args.fitbit_creds,args.google_creds)
 
 	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'heart_rate']:
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'activity']:
 		dataSourceId = helper.GetDataSourceId(dataType,args.google_creds)
 		try:
 			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
@@ -59,7 +59,7 @@ def main():
 			if not 'DataSourceId not found' in str(error):
 				raise error
 			# Data source doesn't already exist so, create it!
-			googleClient.users().dataSources().create(userId='me',body=dataSource).execute()
+			googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
 
 	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored user's timezone.
 	userProfile = remote.ReadFromFitbit(fitbitClient.user_profile_get)
@@ -95,7 +95,8 @@ def main():
 
 		#----------------------------------  activity logs  ------------------------
 		if params.getboolean('sync_activities'):
-			remote.SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,start_date)
+			remote.SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,helper.GetDataSourceId('activity'),
+				start_date=start_date)
 
 	finally:
 		# Persist the latest fitbit access tokens for future use

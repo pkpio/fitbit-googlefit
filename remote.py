@@ -46,25 +46,19 @@ def ReadFromFitbit(api_call,*args,**kwargs):
 		resp = ReadFromFitbit(api_call,*args,**kwargs)
 	return resp
 
-def WriteToGoogleFit(googleClient,dataSourceId,date_stamp,tzinfo,data_points):
+def WriteToGoogleFit(googleClient,dataSourceId,data_points):
 	"""Write data to google fit
 
 	googleClient -- authenticated google client
 	dataSourceId -- data source id for google fit
-	date_stamp -- fitbit timestamp of the day to which the data corresponds to
-	tzinfo -- time zone info of the fitbit user
 	data_point -- google data points
-	maxLogNs, minLogNs -- max and min time stamp over all weight logs being written in this call
 
 	"""
 	# max and min timestamps of any data point we will be adding to googlefit - required by gfit API.
-	# we generate datasetId from these so, multiple syncs over same day won't export duplicates - happy coincidence!
-	minLogNs = convertor.nano(convertor.EpochOfFitbitTimestamp("{} 00:00:00".format(date_stamp),tzinfo))
-	maxLogNs = convertor.nano(convertor.EpochOfFitbitTimestamp("{} 23:59:59".format(date_stamp),tzinfo))
-
-	# Incase a data point occurs exactly at 23:59:59, endTimeNanos of that point will be +110
-	if len(data_points) > 0:
-		maxLogNs = max(maxLogNs, max([point['endTimeNanos'] for point in data_points]))
+	if len(data_points) == 0:
+		return
+	minLogNs = min([point['startTimeNanos'] for point in data_points])
+	maxLogNs = max([point['endTimeNanos'] for point in data_points])
 	datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
 	googleClient.users().dataSources().datasets().patch(
@@ -107,7 +101,7 @@ def SyncFitbitStepsToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataS
 	googleStepPoints = [convertor.ConvertFibitStepsPoint(date_stamp, data_point, tzinfo) for data_point in steps_data]
 
 	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleStepPoints)
+	WriteToGoogleFit(googleClient, dataSourceId, googleStepPoints)
 	print("Synced steps for day : {}".format(date_stamp))
 
 def SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
@@ -129,7 +123,7 @@ def SyncFitbitDistanceToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,da
 	googleDistancePoints = [convertor.ConvertFibitDistancePoint(date_stamp, data_point, tzinfo) for data_point in distances_data]
 
 	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleDistancePoints)
+	WriteToGoogleFit(googleClient, dataSourceId, googleDistancePoints)
 	print("Synced distance for day : {}".format(date_stamp))
 
 def SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
@@ -151,7 +145,7 @@ def SyncFitbitHRToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSour
 	googleHRPoints = [convertor.ConvertFibitHRPoint(date_stamp, data_point, tzinfo) for data_point in hr_data]
 
 	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleHRPoints)
+	WriteToGoogleFit(googleClient, dataSourceId, googleHRPoints)
 	print("Synced heart rate for day : {}".format(date_stamp))
 
 def SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,dataSourceId):
@@ -172,15 +166,16 @@ def SyncFitbitWeightToGoogleFit(fitbitClient,googleClient,date_stamp,tzinfo,data
 	googleWeights = [convertor.ConvertFibitWeightPoint(date_stamp, data_point, tzinfo) for data_point in fitbitWeights]
 
 	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, date_stamp, tzinfo, googleWeights)
+	WriteToGoogleFit(googleClient, dataSourceId, googleWeights)
 	print("Synced weight for day : {}".format(date_stamp))
 
-def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,start_date='',callurl=None):
+def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start_date='',callurl=None):
 	"""
 	Sync activities data starting from a given day from Fitbit to Google fit.
 
 	fitbitClient -- authenticated fitbit client
 	googleClient -- authenticated googlefit client
+	dataSourceId -- google fit data sourceid for activity segment
 	start_date -- timestamp in yyyy-mm-dd format of the start day
 	callurl -- url to fetch activities from
 	"""
@@ -192,9 +187,21 @@ def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,start_date='',call
 	activities = activities_raw['activities']
 
 	for activity in activities:
-		WriteSessionToGoogleFit(googleClient, convertor.ConvertFitbitActivityLog(activity))
+		# 1. write a fit session about the activity 
+		google_session = convertor.ConvertFitbitActivityLog(activity)
+		WriteSessionToGoogleFit(googleClient, google_session)
+
+		# 2. create activity segment data points for the activity
+		activity_segment = dict(
+			dataTypeName='com.google.activity.segment',
+			startTimeNanos=convertor.nano(google_session['startTimeMillis']),
+			endTimeNanos=convertor.nano(google_session['endTimeMillis']),
+			value=[dict(intVal=google_session['activityType'])]
+			)
+		WriteToGoogleFit(googleClient, dataSourceId, [activity_segment])
 	print("Synced {} activities".format(len(activities)))
 
 	if activities_raw['pagination']['next'] != '':
-	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,activities_raw['pagination']['next'])
+	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,dataSourceId,
+	 		callurl=activities_raw['pagination']['next'])
 

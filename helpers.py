@@ -69,7 +69,7 @@ def GetGoogleClient(filepath):
 def GetDataSource(type='steps'):
 	"""Returns a data source for Google Fit data logging
 	
-	type - type of data. Possible options: steps, weight, heart_rate
+	type - type of data. Possible options: steps, weight, heart_rate, activity
 	"""
 	# Do NOT change these after the first sync!
 	model = 'charge-hr'
@@ -82,6 +82,8 @@ def GetDataSource(type='steps'):
 		model='aria' # weighing machine
 	elif type == 'heart_rate':
 		dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
+	elif type == 'activity':
+		dataType=dict(name='com.google.activity.segment',field=[dict(name='activity',format='integer')])
 	else:
 		raise ValueError("Unexpected data type given!")
 
