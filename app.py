@@ -37,8 +37,8 @@ def main():
 	parser.add_argument("-c", "--config", default='config.ini', help="Configuration file")
 	parser.add_argument("-s", "--start-date", default="", help="Start date for sync in YYYY-MM-DD format")
 	parser.add_argument("-e", "--end-date", default="", help="End data for sync in YYYY-MM-DD format")
-	parser.add_argument("-g", "--google-creds", default="auth/google.json", help="Google credentials file. Obtain using auth/auth_google.py")
-	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file. Obtain using auth/auth_fitbit.py")
+	parser.add_argument("-g", "--google-creds", default="auth/google.json", help="Google credentials file")
+	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file")
 	args = parser.parse_args()
 
 	# Reading configuration from config file
