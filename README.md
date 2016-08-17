@@ -23,6 +23,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
   - [x] Walking
   - [x] Badminton
   - [x] Workouts (as weightlifting)
+  - [x] Others (as running) -- awaiting suggestions
 - [x] Calories - minute level precision
 - [ ] Floors - minute level precision
 - [ ] Elevation - minute level precision
