@@ -36,23 +36,18 @@ def GetFitbitClient(filepath):
 	credentials = json.load(open(filepath))  
 	client = fitbit.Fitbit(**credentials)
 	logging.debug("Fitbit client created")
-	return client, credentials
+	return client
 
-def UpdateFitbitCredentials(fitbitClient, credentials, filepath=fitbitCredsFile):
+def UpdateFitbitCredentials(fitbitClient, filepath=fitbitCredsFile):
 	"""Persists new fitbit credentials to local storage
 
 	fitbitClient -- fitbit client object that contains the latest credentials
 	filepath -- path to file containing oauth credentials in json format
-	credentails -- previous credentials object
 	"""
-	dump = False
+	credentials = json.load(open(filepath)) 
 	for t in ('access_token', 'refresh_token'):
-		if fitbitClient.client.token[t] != credentials[t]:
-			credentials[t] = fitbitClient.client.token[t]
-			dump = True
-	if dump:
-		logging.debug("Updating Fitbit credentials")
-		json.dump(credentials, open(filepath, 'w'))
+		credentials[t] = fitbitClient.client.token[t]
+	json.dump(credentials, open(filepath, 'w'))
 
 def GetGoogleClient(filepath):
 	"""Returns an authenticated google fit client object

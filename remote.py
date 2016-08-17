@@ -94,6 +94,9 @@ def SyncFitbitToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
 	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
 	tzinfo -- timezone info of Fitbit user
 	"""
+	# Persist current credentials. Incase the request fails.
+	helper.UpdateFitbitCredentials(fitbitClient)
+
 	if dataType in ('steps','distance','heart_rate','calories'):
 		return SyncFitbitIntradayToGoogleFit(fitbitClient, googleClient, dataType, date_stamp, tzinfo)
 	elif dataType in ('weight','body_fat'):
