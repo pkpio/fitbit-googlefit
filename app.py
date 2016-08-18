@@ -55,25 +55,19 @@ def main():
 
 	# setup Google Fit data sources for each data type supported
 	for dataType in ['steps', 'distance', 'weight', 'body_fat', 'heart_rate', 'calories', 'activity']:
-		dataSourceId = helper.GetDataSourceId(dataType)
-		try:
-			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
-		except HttpError as error:
-			if not 'DataSourceId not found' in str(error):
-				raise error
-			# Data source doesn't already exist so, create it!
-			googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
+		remote.CreateGoogleFitDataSource(googleClient, dataType)
 
-	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored user's timezone.
+	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored in user's timezone.
 	userProfile = remote.ReadFromFitbit(fitbitClient.user_profile_get)
 	tzinfo = dateutil.tz.gettz(userProfile['user']['timezone'])
 
-	# Start fetching date for a given range of days
+	# Decide the start and end dates of sync
 	start_date_str = args.start_date if args.start_date != '' else params.get('start_date')
 	end_date_str = args.end_date if args.end_date != '' else params.get('end_date')
 	start_date = datetime.datetime.strptime(start_date_str, DATE_FORMAT).date()
 	end_date = datetime.datetime.strptime(end_date_str, DATE_FORMAT).date()
 
+	# Start syncing data for the given range
 	for single_date in convertor.daterange(start_date, end_date):
 		date_stamp = single_date.strftime(DATE_FORMAT)
 		print('------------------------------   {}  -------------------------'.format(date_stamp))

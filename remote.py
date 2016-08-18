@@ -82,6 +82,17 @@ def WriteSessionToGoogleFit(googleClient,session_data):
 	googleClient.users().sessions().update(userId='me',sessionId=session_data['id'],body=session_data).execute()
 
 
+def CreateGoogleFitDataSource(googleClient,dataType):
+	dataSourceId = helper.GetDataSourceId(dataType)
+		try:
+			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
+		except HttpError as error:
+			if not 'DataSourceId not found' in str(error):
+				raise error
+			# Data source doesn't already exist so, create it!
+			googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
+
+
 ########################################### Sync functions ########################################
 
 def SyncFitbitToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
