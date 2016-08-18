@@ -54,7 +54,7 @@ def main():
 	helper.SetCredsFilePaths(args.fitbit_creds,args.google_creds)
 
 	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'body_fat', 'heart_rate', 'calories', 'activity']:
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity']:
 		remote.CreateGoogleFitDataSource(googleClient, dataType)
 
 	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored in user's timezone.
@@ -89,7 +89,7 @@ def main():
 			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'weight',date_stamp,tzinfo)
 
 		#----------------------------------     body fat   ------------------------
-		if params.getboolean('sync_body_fat'):
+		if params.getboolean('sync_body_fat') and False: # Disabling this temporarily. See issue #1.
 			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'body_fat',date_stamp,tzinfo)
 
 		#----------------------------------     calories   ------------------------

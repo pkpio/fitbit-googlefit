@@ -83,14 +83,14 @@ def WriteSessionToGoogleFit(googleClient,session_data):
 
 
 def CreateGoogleFitDataSource(googleClient,dataType):
-	dataSourceId = helper.GetDataSourceId(dataType)
-		try:
-			googleClient.users().dataSources().get(userId='me',dataSourceId=dataSourceId).execute()
-		except HttpError as error:
-			if not 'DataSourceId not found' in str(error):
-				raise error
-			# Data source doesn't already exist so, create it!
-			googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
+	try:
+		googleClient.users().dataSources().get(userId='me',dataSourceId=helper.GetDataSourceId(dataType)).execute()
+	except HttpError as error:
+		if not 'DataSourceId not found' in str(error):
+			raise error
+		# Data source doesn't already exist so, create it!
+		print(helper.GetDataSource(dataType))
+		googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
 
 
 ########################################### Sync functions ########################################
