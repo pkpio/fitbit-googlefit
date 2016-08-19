@@ -14,7 +14,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 - [x] Distance - minute level precision
 - [x] Heart rate - second level precision
 - [x] Weight
-- [x] Body fat
+- [ ] Body fat (disabled temporarily)
 - [x] Activities 
   - [x] Running
   - [x] Swimming
