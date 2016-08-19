@@ -1,32 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Main class / entry point for the application 
 
 __author__ = "Praveen Kumar Pendyala"
 __email__ = "mail@pkp.io"
 """
-import httplib2
-import sys
 import time
 import argparse
 import logging
 import datetime
-import dateutil.tz
 import dateutil.parser
 import configparser
 import json
 from datetime import timedelta, date
 
-import fitbit
-from fitbit.exceptions import HTTPTooManyRequests
-from apiclient.discovery import build
-from oauth2client.file import Storage
-from oauth2client.client import OAuth2Credentials
-from googleapiclient.errors import HttpError
-
-import helpers as helper
-import convertors as convertor
-import remote as remote
+from helpers import *
+from convertors import *
+from remote import *
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -46,20 +36,20 @@ def main():
 	config.read(args.config)
 	params = config['params']
 
-	# Init client objects
-	fitbitClient = helper.GetFitbitClient(args.fitbit_creds)
-	googleClient = helper.GetGoogleClient(args.google_creds)
-
-	# Save creds file path to helper class - saves some arguments in future calls
-	helper.SetCredsFilePaths(args.fitbit_creds,args.google_creds)
-
-	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity']:
-		remote.CreateGoogleFitDataSource(googleClient, dataType)
+	# Init objects
+	helper = Helper(args.fitbit_creds, args.google_creds)
+	convertor = Convertor(args.google_creds, None)
+	fitbitClient,googleClient = helper.GetFitbitClient(),helper.GetGoogleClient()
+	remote = Remote(fitbitClient, googleClient, convertor, helper)
 
 	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored in user's timezone.
 	userProfile = remote.ReadFromFitbit(fitbitClient.user_profile_get)
 	tzinfo = dateutil.tz.gettz(userProfile['user']['timezone'])
+	convertor.UpdateTimezone(tzinfo)
+
+	# setup Google Fit data sources for each data type supported
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity']:
+		remote.CreateGoogleFitDataSource(dataType)
 
 	# Decide the start and end dates of sync
 	start_date_str = args.start_date if args.start_date != '' else params.get('start_date')
@@ -74,34 +64,33 @@ def main():
 
 		#----------------------------------     steps      ------------------------
 		if params.getboolean('sync_steps'):
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'steps',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('steps',date_stamp)
 		    
 		#----------------------------------     distance   ------------------------
 		if params.getboolean('sync_distance'):
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'distance',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('distance',date_stamp)
 		    
 		#----------------------------------     heart rate ------------------------
 		if params.getboolean('sync_heartrate'):
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'heart_rate',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('heart_rate',date_stamp)
 
 		#----------------------------------     weight     ------------------------
 		if params.getboolean('sync_weight'):
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'weight',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('weight',date_stamp)
 
 		#----------------------------------     body fat   ------------------------
 		if params.getboolean('sync_body_fat') and False: # Disabling this temporarily. See issue #1.
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'body_fat',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('body_fat',date_stamp)
 
 		#----------------------------------     calories   ------------------------
 		if params.getboolean('sync_calories'):
-			remote.SyncFitbitToGoogleFit(fitbitClient,googleClient,'calories',date_stamp,tzinfo)
+			remote.SyncFitbitToGoogleFit('calories',date_stamp)
 
 		print('')
 
 	#----------------------------------  activity logs  ------------------------
 	if params.getboolean('sync_activities'):
-		remote.SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,helper.GetDataSourceId('activity'),
-			start_date=start_date)
+		remote.SyncFitbitActivitiesToGoogleFit(convertor.GetDataSourceId('activity'),start_date=start_date)
 
 if __name__ == '__main__':
 	main()

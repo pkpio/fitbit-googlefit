@@ -1,11 +1,8 @@
+#!/usr/bin/env python3
 """
-Methods for remote api calls and synchronization from Fitbit to Google Fit
-
 __author__ = "Praveen Kumar Pendyala"
 __email__ = "mail@pkp.io"
 """
-import httplib2
-import sys
 import time
 import argparse
 import logging
@@ -23,212 +20,217 @@ from oauth2client.file import Storage
 from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
 
-import convertors as convertor
-import helpers as helper
+class Remote:
+	"""Methods for remote api calls and synchronization from Fitbit to Google Fit"""
+	
+	FITBIT_API_URL = 'https://api.fitbit.com/1'
 
-FITBIT_API_URL = 'https://api.fitbit.com/1'
+	def __init__(self, fitbitClient, googleClient, convertor, helper):
+		""" Intialize a remote object.
+		
+		fitbitClient -- authenticated fitbit client
+		googleClient -- authenticated google client
+		convertor -- a convertor object for type conversions
+		helper -- a helper object for fitbit credentials update
+		"""
+		self.fitbitClient = fitbitClient
+		self.googleClient = googleClient
+		self.convertor = convertor
+		self.helper = helper
 
-########################### Remote data read/write functions ############################
+	########################### Remote data read/write methods ############################
 
-def ReadFromFitbit(api_call,*args,**kwargs):
-	"""Peforms a read request from Fitbit API. The request will be paused if API rate limiting has 
-	been reached!
+	def ReadFromFitbit(self, api_call, *args, **kwargs):
+		"""Peforms a read request from Fitbit API. The request will be paused if API rate limiting has 
+		been reached!
 
-	api_call -- api method to call
-	args -- arguments to pass for the method
-	"""
-	# res_url,date_stamp,detail_level
-	try:
-	 	resp = api_call(*args,**kwargs)
-	except HTTPTooManyRequests as e:
-		print('-------------- Fitbit API rate limit reached ----------')
-		print('Will retry in {} seconds. Time now is : {}'.format(e.retry_after_secs, str(datetime.datetime.now())))
-		time.sleep(e.retry_after_secs)
-		resp = ReadFromFitbit(api_call,*args,**kwargs)
-	return resp
+		api_call -- api method to call
+		args -- arguments to pass for the method
+		"""
+		# res_url,date_stamp,detail_level
+		try:
+		 	resp = api_call(*args,**kwargs)
+		except HTTPTooManyRequests as e:
+			print('-------------- Fitbit API rate limit reached ----------')
+			print('Will retry in {} seconds. Time now is : {}'.format(
+				e.retry_after_secs, 
+				str(datetime.datetime.now())
+				))
+			time.sleep(e.retry_after_secs)
+			resp = self.ReadFromFitbit(api_call,*args,**kwargs)
+		return resp
 
-def WriteToGoogleFit(googleClient,dataSourceId,data_points):
-	"""Write data to google fit
+	def WriteToGoogleFit(self, dataSourceId, data_points):
+		"""Write data to google fit
 
-	googleClient -- authenticated google client
-	dataSourceId -- data source id for google fit
-	data_point -- google data points
+		dataSourceId -- data source id for google fit
+		data_point -- google data points
+		"""
+		# max and min timestamps of any data point we will be adding to googlefit - required by gfit API.
+		if len(data_points) == 0:
+			return
+		minLogNs = min([point['startTimeNanos'] for point in data_points])
+		maxLogNs = max([point['endTimeNanos'] for point in data_points])
+		datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
-	"""
-	# max and min timestamps of any data point we will be adding to googlefit - required by gfit API.
-	if len(data_points) == 0:
-		return
-	minLogNs = min([point['startTimeNanos'] for point in data_points])
-	maxLogNs = max([point['endTimeNanos'] for point in data_points])
-	datasetId = '%s-%s' % (minLogNs, maxLogNs)
-
-	googleClient.users().dataSources().datasets().patch(
-			userId='me',
-			dataSourceId=dataSourceId,
-			datasetId=datasetId,
-			body=dict(
+		self.googleClient.users().dataSources().datasets().patch(
+				userId='me',
 				dataSourceId=dataSourceId,
-				maxEndTimeNs=maxLogNs,
-				minStartTimeNs=minLogNs,
-				point=data_points)
-	).execute()
+				datasetId=datasetId,
+				body=dict(
+					dataSourceId=dataSourceId,
+					maxEndTimeNs=maxLogNs,
+					minStartTimeNs=minLogNs,
+					point=data_points)
+		).execute()
 
-def WriteSessionToGoogleFit(googleClient,session_data):
-	"""Write data to google fit
+	def WriteSessionToGoogleFit(self, session_data):
+		"""Write data to google fit
 
-	googleClient -- authenticated google client
-	session_data -- a session data
-	"""
-	googleClient.users().sessions().update(userId='me',sessionId=session_data['id'],body=session_data).execute()
-
-
-def CreateGoogleFitDataSource(googleClient,dataType):
-	try:
-		googleClient.users().dataSources().get(userId='me',dataSourceId=helper.GetDataSourceId(dataType)).execute()
-	except HttpError as error:
-		if not 'DataSourceId not found' in str(error):
-			raise error
-		# Data source doesn't already exist so, create it!
-		print(helper.GetDataSource(dataType))
-		googleClient.users().dataSources().create(userId='me',body=helper.GetDataSource(dataType)).execute()
+		session_data -- a session data
+		"""
+		self.googleClient.users().sessions().update(
+			userId='me',
+			sessionId=session_data['id'],
+			body=session_data).execute()
 
 
-########################################### Sync functions ########################################
+	def CreateGoogleFitDataSource(self, dataType):
+		try:
+			self.googleClient.users().dataSources().get(
+				userId='me',
+				dataSourceId=self.convertor.GetDataSourceId(dataType)).execute()
+		except HttpError as error:
+			if not 'DataSourceId not found' in str(error):
+				raise error
+			# Data source doesn't already exist so, create it!
+			googleClient.users().dataSources().create(
+				userId='me',
+				body=self.convertor.GetDataSource(dataType)).execute()
 
-def SyncFitbitToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
-	"""
-	Sync Fitbit data to Google fit for a given day.
 
-	fitbitClient -- authenticated fitbit client
-	googleClient -- authenticated googlefit client
-	dataType -- fitbit data type to sync
-	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
-	tzinfo -- timezone info of Fitbit user
-	"""
-	# Persist current credentials. Incase the request fails.
-	helper.UpdateFitbitCredentials(fitbitClient)
+	########################################### Sync methods ########################################
 
-	if dataType in ('steps','distance','heart_rate','calories'):
-		return SyncFitbitIntradayToGoogleFit(fitbitClient, googleClient, dataType, date_stamp, tzinfo)
-	elif dataType in ('weight','body_fat'):
-		return SyncFitbitLogToGoogleFit(fitbitClient, googleClient, dataType, date_stamp, tzinfo)
-	else:
-		raise ValueError("Unexpected data type given!")
+	def SyncFitbitToGoogleFit(self, dataType, date_stamp):
+		"""
+		Sync Fitbit data to Google fit for a given day.
 
-def SyncFitbitIntradayToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
-	"""
-	Sync Fitbit data of a particular intraday type to Google fit for a given day.
+		dataType -- fitbit data type to sync
+		date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+		"""
+		# Persist current credentials. Incase the request fails.
+		self.helper.UpdateFitbitCredentials(self.fitbitClient)
 
-	fitbitClient -- authenticated fitbit client
-	googleClient -- authenticated googlefit client
-	dataType -- fitbit data type to sync
-	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
-	tzinfo -- timezone info of Fitbit user
-	"""
-	if dataType == 'steps':
-		res_path,detail_level,resp_id  = 'activities/steps','1min','activities-steps-intraday'
-	elif dataType == 'distance':
-		res_path,detail_level,resp_id  = 'activities/distance','1min','activities-distance-intraday'
-	elif dataType == 'heart_rate':
-		res_path,detail_level,resp_id  = 'activities/heart','1sec','activities-heart-intraday'
-	elif dataType == 'calories':
-		res_path,detail_level,resp_id  = 'activities/calories','1min','activities-calories-intraday'
-	else:
-		raise ValueError("Unexpected data type given!")
-	dataSourceId = helper.GetDataSourceId(dataType)
+		if dataType in ('steps','distance','heart_rate','calories'):
+			return self.SyncFitbitIntradayToGoogleFit(dataType, date_stamp)
+		elif dataType in ('weight','body_fat'):
+			return self.SyncFitbitLogToGoogleFit(dataType, date_stamp)
+		else:
+			raise ValueError("Unexpected data type given!")
 
-	# Get intraday data from fitbit
-	interday_raw = ReadFromFitbit(fitbitClient.intraday_time_series, res_path, base_date=date_stamp,
-		detail_level=detail_level)
-	intraday_data = interday_raw[resp_id]['dataset']
+	def SyncFitbitIntradayToGoogleFit(self, dataType, date_stamp):
+		"""
+		Sync Fitbit data of a particular intraday type to Google fit for a given day.
 
-	# convert all fitbit data points to google fit data points
-	googlePoints = [convertor.ConvertFibitPoint(date_stamp,data_point,dataType,tzinfo) for data_point in intraday_data]
+		dataType -- fitbit data type to sync
+		date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+		"""
+		if dataType == 'steps':
+			res_path,detail_level,resp_id  = 'activities/steps','1min','activities-steps-intraday'
+		elif dataType == 'distance':
+			res_path,detail_level,resp_id  = 'activities/distance','1min','activities-distance-intraday'
+		elif dataType == 'heart_rate':
+			res_path,detail_level,resp_id  = 'activities/heart','1sec','activities-heart-intraday'
+		elif dataType == 'calories':
+			res_path,detail_level,resp_id  = 'activities/calories','1min','activities-calories-intraday'
+		else:
+			raise ValueError("Unexpected data type given!")
+		dataSourceId = self.convertor.GetDataSourceId(dataType)
 
-	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, googlePoints)
-	print("synced {}".format(dataType))
+		# Get intraday data from fitbit
+		interday_raw = self.ReadFromFitbit(self.fitbitClient.intraday_time_series, res_path, base_date=date_stamp,
+			detail_level=detail_level)
+		intraday_data = interday_raw[resp_id]['dataset']
 
-def SyncFitbitLogToGoogleFit(fitbitClient,googleClient,dataType,date_stamp,tzinfo):
-	"""
-	Sync Fitbit logs of a particular type to Google Fit for a given day.
+		# convert all fitbit data points to google fit data points
+		googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,dataType) for point in intraday_data]
 
-	fitbitClient -- authenticated fitbit client
-	googleClient -- authenticated googlefit client
-	dataType -- fitbit data type to sync
-	date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
-	tzinfo -- timezone info of Fitbit user
-	"""
-	if dataType == 'weight':
-		callMethod,resp_id = fitbitClient.get_bodyweight,'weight'
-	elif dataType == 'body_fat':
-		callMethod,resp_id = fitbitClient.get_bodyfat,'fat'
-	else:
-		raise ValueError("Unexpected data type given!")
-	dataSourceId = helper.GetDataSourceId(dataType)
+		# Write a day of fitbit data to Google fit
+		self.WriteToGoogleFit(dataSourceId, googlePoints)
+		print("synced {}".format(dataType))
 
-	# Get intraday distance for date_stamp from fitbit
-	fitbitLogs = ReadFromFitbit(callMethod,base_date=date_stamp,end_date=date_stamp)[resp_id]
+	def SyncFitbitLogToGoogleFit(self, dataType, date_stamp):
+		"""
+		Sync Fitbit logs of a particular type to Google Fit for a given day.
 
-	# convert all fitbit data points to google fit data points
-	googlePoints = [convertor.ConvertFibitPoint(date_stamp,data_point,dataType,tzinfo) for data_point in fitbitLogs]
+		dataType -- fitbit data type to sync
+		date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
+		"""
+		if dataType == 'weight':
+			callMethod,resp_id = self.fitbitClient.get_bodyweight,'weight'
+		elif dataType == 'body_fat':
+			callMethod,resp_id = self.fitbitClient.get_bodyfat,'fat'
+		else:
+			raise ValueError("Unexpected data type given!")
+		dataSourceId = self.convertor.GetDataSourceId(dataType)
 
-	# Write a day of fitbit data to Google fit
-	WriteToGoogleFit(googleClient, dataSourceId, googlePoints)
-	print("synced {}".format(dataType))
+		# Get intraday distance for date_stamp from fitbit
+		fitbitLogs = self.ReadFromFitbit(callMethod,base_date=date_stamp,end_date=date_stamp)[resp_id]
 
-def SyncFitbitSleepToGoogleFit(fitbitClient,googleClient,dataSourceId,date_stamp):
-	"""
-	Sync sleep data for a given day from Fitbit to Google fit.
+		# convert all fitbit data points to google fit data points
+		googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,dataType) for point in fitbitLogs]
 
-	fitbitClient -- authenticated fitbit client
-	googleClient -- authenticated googlefit client
-	dataSourceId -- google fit data sourceid for activity segment
-	date_stamp -- timestamp in yyyy-mm-dd format of the start day
-	"""
-	raise NotImplementedError('Feature not implemented yet!')
+		# Write a day of fitbit data to Google fit
+		self.WriteToGoogleFit(dataSourceId, googlePoints)
+		print("synced {}".format(dataType))
 
-def SyncFitbitActivitiesToGoogleFit(fitbitClient,googleClient,dataSourceId,start_date='',callurl=None):
-	"""
-	Sync activities data starting from a given day from Fitbit to Google fit.
+	def SyncFitbitSleepToGoogleFit(self, dataSourceId, date_stamp):
+		"""
+		Sync sleep data for a given day from Fitbit to Google fit.
 
-	fitbitClient -- authenticated fitbit client
-	googleClient -- authenticated googlefit client
-	dataSourceId -- google fit data sourceid for activity segment
-	start_date -- timestamp in yyyy-mm-dd format of the start day
-	callurl -- url to fetch activities from
-	"""
-	# Fitbit activities list endpoint is in beta stage. It may break in the future and not directly supported
-	# by the python client library.
-	if not callurl:
-		callurl = '{}/user/-/activities/list.json?afterDate={}&sort=asc&offset=0&limit=20'.format(FITBIT_API_URL,start_date)
-	activities_raw = ReadFromFitbit(fitbitClient.make_request,callurl)
-	activities = activities_raw['activities']
+		dataSourceId -- google fit data sourceid for activity segment
+		date_stamp -- timestamp in yyyy-mm-dd format of the start day
+		"""
+		raise NotImplementedError('Feature not implemented yet!')
 
-	startTimeMillis,endTimeMillis = [],[]
-	for activity in activities:
-		# 1. write a fit session about the activity 
-		google_session = convertor.ConvertFitbitActivityLog(activity)
-		WriteSessionToGoogleFit(googleClient, google_session)
+	def SyncFitbitActivitiesToGoogleFit(self, dataSourceId, start_date='', callurl=None):
+		"""
+		Sync activities data starting from a given day from Fitbit to Google fit.
 
-		# 2. create activity segment data points for the activity
-		activity_segment = dict(
-			dataTypeName='com.google.activity.segment',
-			startTimeNanos=convertor.nano(google_session['startTimeMillis']),
-			endTimeNanos=convertor.nano(google_session['endTimeMillis']),
-			value=[dict(intVal=google_session['activityType'])]
-			)
-		WriteToGoogleFit(googleClient, dataSourceId, [activity_segment])
+		dataSourceId -- google fit data sourceid for activity segment
+		start_date -- timestamp in yyyy-mm-dd format of the start day
+		callurl -- url to fetch activities from
+		"""
+		# Fitbit activities list endpoint is in beta stage. It may break in the future and not directly supported
+		# by the python client library.
+		if not callurl:
+			callurl = '{}/user/-/activities/list.json?afterDate={}&sort=asc&offset=0&limit=20'.format(self.FITBIT_API_URL,start_date)
+		activities_raw = self.ReadFromFitbit(self.fitbitClient.make_request, callurl)
+		activities = activities_raw['activities']
 
-		# Just for user output
-		startTimeMillis.append(google_session['startTimeMillis'])
-		endTimeMillis.append(google_session['endTimeMillis'])
+		startTimeMillis,endTimeMillis = [],[]
+		for activity in activities:
+			# 1. write a fit session about the activity 
+			google_session = self.convertor.ConvertFitbitActivityLog(activity)
+			self.WriteSessionToGoogleFit(google_session)
 
-	print("Synced {} activities : {} -- {}".format(len(activities),
-		datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
-		datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
+			# 2. create activity segment data points for the activity
+			activity_segment = dict(
+				dataTypeName='com.google.activity.segment',
+				startTimeNanos=self.convertor.nano(google_session['startTimeMillis']),
+				endTimeNanos=self.convertor.nano(google_session['endTimeMillis']),
+				value=[dict(intVal=google_session['activityType'])]
+				)
+			self.WriteToGoogleFit(dataSourceId, [activity_segment])
 
-	if activities_raw['pagination']['next'] != '':
-	 	SyncFitbitActivitiesToGoogleFit(fitbitClient, googleClient,dataSourceId,
-	 		callurl=activities_raw['pagination']['next'])
+			# Just for user output
+			startTimeMillis.append(google_session['startTimeMillis'])
+			endTimeMillis.append(google_session['endTimeMillis'])
+
+		print("Synced {} activities : {} -- {}".format(len(activities),
+			datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
+			datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
+
+		if activities_raw['pagination']['next'] != '':
+		 	self.SyncFitbitActivitiesToGoogleFit(dataSourceId, callurl=activities_raw['pagination']['next'])
 
