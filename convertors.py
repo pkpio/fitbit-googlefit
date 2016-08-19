@@ -10,6 +10,7 @@ import dateutil.parser
 import json
 from datetime import timedelta, date
 from oauth2client.file import Storage
+import parsedatetime as pdt
 
 class Convertor:
 	"""Methods for data type conversions. All fitbit conversion methods convert to google fit compatible data types"""
@@ -58,6 +59,12 @@ class Convertor:
 		"""
 		for n in range(0, int((end_date - start_date).days), step):
 			yield start_date + timedelta(n)
+
+	def parseHumanReadableDate(self,datestr):
+		"""Parses a human-readable date string to python's date object"""
+		cal = pdt.Calendar()
+		now = datetime.datetime.now()
+		return cal.parseDT(datestr, now)[0].date()
 
 
 	#------------------------ Fitbit to Google Fit convertors ----------------------------

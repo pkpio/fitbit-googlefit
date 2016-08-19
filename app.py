@@ -54,8 +54,8 @@ def main():
 	# Decide the start and end dates of sync
 	start_date_str = args.start_date if args.start_date != '' else params.get('start_date')
 	end_date_str = args.end_date if args.end_date != '' else params.get('end_date')
-	start_date = datetime.datetime.strptime(start_date_str, DATE_FORMAT).date()
-	end_date = datetime.datetime.strptime(end_date_str, DATE_FORMAT).date()
+	start_date = convertor.parseHumanReadableDate(start_date_str)
+	end_date = convertor.parseHumanReadableDate(end_date_str)
 
 	# Start syncing data for the given range
 	for single_date in convertor.daterange(start_date, end_date):
