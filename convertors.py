@@ -198,22 +198,50 @@ class Convertor:
 		endTimeMillis = startTimeMillis + activity['duration']
 
 		# Activity type conversion
-		if activity['activityName'] == 'Walk':
+		if activity['activityName'] in ('Walk'):
 			activityType = 7
 		elif activity['activityName'] in ('Run','Running'):
 			activityType = 8
 		elif activity['activityName'] in ('Volleyball','Sport'):
 			activityType = 89
-		elif activity['activityName'] == 'Swimming':
+		elif activity['activityName'] in ('Swimming', 'Swim'):
 			activityType = 82
-		elif activity['activityName'] == 'Badminton':
+		elif activity['activityName'] in ('Badminton'):
 			activityType = 10
-		elif activity['activityName'] == 'Biking':
+		elif activity['activityName'] in ('Biking'):
 			activityType = 1
-		elif activity['activityName'] in ('Weightlifting','Workout'):
+		elif activity['activityName'] in ('Weightlifting', 'Weights', 'Workout'):
 			activityType = 97
+		elif activity['activityName'] in ('Hike','Hiking'):
+			activityType = 35
+		elif activity['activityName'] in ('Tennis'):
+			activityType = 87
+		elif activity['activityName'] in ('Football'):
+			activityType = 28
+		elif activity['activityName'] in ('Golf'):
+			activityType = 32
+		elif activity['activityName'] in ('Fencing'):
+			activityType = 26
+		elif activity['activityName'] in ('Skiing'):
+			activityType = 65
+		elif activity['activityName'] in ('Cross Country Skiing'):
+			activityType = 67
+		elif activity['activityName'] in ('Surfing'):
+			activityType = 81
+		elif activity['activityName'] in ('Bike', 'Biking'):
+			activityType = 1
+		elif activity['activityName'] in ('Mountain Bike', 'Mountain biking'):
+			activityType = 15
+		elif activity['activityName'] in ('Ice skating'):
+			activityType = 104
+		elif activity['activityName'] in ('Cricket'):
+			activityType = 23
+		elif activity['activityName'] in ('Dancing'):
+			activityType = 24
+		elif activity['activityName'] in ('Ultimate frisbee', 'Frisbee'):
+			activityType = 30
 		else:
-			activityType = 8
+			activityType = 4 # Unknown activity
 
 		return dict(
 			modifiedTimeMillis=int((time.time() * 1000)),
