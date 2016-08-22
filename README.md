@@ -1,6 +1,6 @@
 # Introduction
 ----------------------------
-Export all your Fitbit data to Google Fit. If you find this useful, please **star** :star: the repository on Github.
+Export all your Fitbit data to Google Fit. If you find this useful, please **star** the repository on Github.
 
 Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fine granularity for the data.
 
@@ -83,3 +83,9 @@ Note :
 --
 1. Get command line help using the -h flag. 
 2. Arguments passed through command-line take higher priority over ```config.ini``` values.
+
+Sync examples:
+--------
+- With date stamps : ```python3 app.py -s 2016-08-20 -e 2016-08-22```
+- Last 3 days : ```python3 app.py -s "2 days ago" -e tomorrow```
+- January month : ```python3 app.py -s "jan 1 2016" -e "feb 1 2016"```
