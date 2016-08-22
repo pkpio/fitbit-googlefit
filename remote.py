@@ -104,7 +104,7 @@ class Remote:
 			if not 'DataSourceId not found' in str(error):
 				raise error
 			# Data source doesn't already exist so, create it!
-			googleClient.users().dataSources().create(
+			self.googleClient.users().dataSources().create(
 				userId='me',
 				body=self.convertor.GetDataSource(dataType)).execute()
 
