@@ -1,6 +1,6 @@
 # Introduction
 ----------------------------
-Export all your Fitbit data to Google Fit. If you find this useful, please **star** the repository on Github.
+Export all your Fitbit data to Google Fit. If you find this useful, please **star** :star: the repository on Github.
 
 Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fine granularity for the data.
 
