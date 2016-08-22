@@ -79,13 +79,21 @@ Note :
 ----------------------------
 Update the ```config.ini``` with own choices and start the sync using ```python3 app.py```
 
-Note : 
---
-1. Get command line help using the -h flag. 
-2. Arguments passed through command-line take higher priority over ```config.ini``` values.
-
 Sync examples:
---------
+--------------
 - With date stamps : ```python3 app.py -s 2016-08-20 -e 2016-08-22```
 - Last 3 days : ```python3 app.py -s "2 days ago" -e tomorrow```
 - January month : ```python3 app.py -s "jan 1 2016" -e "feb 1 2016"```
+
+Setup autosync:
+--------------
+You can setup a cron task to automatically sync everyday at 2:30 AM.
+
+```30 2 * * * /path-to-repo/fitbit-googlefit/cron.sh```
+
+Add above line to your cron tab: ```crontab -e``` in Linux.
+
+Note : 
+-------
+1. Get command line help using the -h flag. 
+2. Arguments passed through command-line take higher priority over ```config.ini``` values.
