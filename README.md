@@ -22,13 +22,18 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
   - [x] Volleyball
   - [x] Walking
   - [x] Badminton
-  - [x] Workouts (as weightlifting)
-  - [x] Others (as running) -- awaiting suggestions
+  - [x] Workouts
+  - [x] Fencing
+  - [x] Cricket
+  - [x] Football
+  - [x] Hiking
+  - [x] And a [few others][activities] -- suggestions welcome!
 - [x] Calories - minute level precision
 - [ ] Floors - minute level precision
 - [ ] Elevation - minute level precision
 - [ ] Food logs
 
+[activities]:https://github.com/praveendath92/fitbit-googlefit/blob/master/convertors.py#L201
 
 # Setup
 ----------------------------
@@ -36,7 +41,7 @@ You have to register your own Fitbit and Google Fit applications. This setup is 
 
 1. Install dependencies
 -------------------
-This is python3 application so install all the dependencies using ```sudo pip3 install -r requirements.txt```
+This is a python3 application so install all the dependencies using ```sudo pip3 install -r requirements.txt```
 
 
 2. Fitbit setup
@@ -52,13 +57,14 @@ Description : --
 Application Website : --
 Organization : --
 Organization Website : --
-OAuth 2.0 Application Type : Personal
+OAuth 2.0 Application Type : **Personal**
 Callback URL : http://localhost:8080/
 Default Access Type : Read-Only
 
 Note : 
 1. Use your own information for fields marked --
 2. Make sure you copy the Callback URL exactly (including the last /)
+3. Application Type MUST be Personal
 ```
 - Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
 - ```cd /auth``` and run ```python3 auth_fitbit.py <client-id> <client-secret>```
@@ -89,9 +95,9 @@ Setup autosync:
 --------------
 You can setup a cron task to automatically sync everyday at 2:30 AM.
 
-```30 2 * * * /path-to-repo/fitbit-googlefit/cron.sh```
+```30 2 * * * /path-to-repo/fitbit-googlefit/cron.sh >> /path-to-repo/fitbit-googlefit/cron.log 2>&1```
 
-Add above line to your cron tab: ```crontab -e``` in Linux.
+Add above line to your cron tab: ```crontab -e``` in Linux. Sync logs will be stored to ```cron.log``` in repository.
 
 Note : 
 -------
