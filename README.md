@@ -33,7 +33,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 - [ ] Elevation - minute level precision
 - [ ] Food logs
 
-[activities]:https://github.com/praveendath92/fitbit-googlefit/blob/master/convertors.py#L201
+[activities]:https://github.com/praveendath92/fitbit-googlefit/blob/master/convertors.py#L201-L241
 
 # Setup
 ----------------------------
