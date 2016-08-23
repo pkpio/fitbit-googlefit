@@ -232,7 +232,7 @@ class Remote:
 				datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
 				datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
 		else:
-			print("No activities found after {}".format(start_date))
+			print("No Fitbit activities logged since {}".format(start_date))
 
 		if activities_raw['pagination']['next'] != '':
 		 	self.SyncFitbitActivitiesToGoogleFit(dataSourceId, callurl=activities_raw['pagination']['next'])
