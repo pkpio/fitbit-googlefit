@@ -14,7 +14,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 - [x] Distance - minute level precision
 - [x] Heart rate - second level precision
 - [x] Weight
-- [ ] Body fat (disabled temporarily)
+- [x] Body fat percentage
 - [x] Activities 
   - [x] Running
   - [x] Swimming
@@ -29,6 +29,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
   - [x] Hiking
   - [x] And a [few others][activities] -- suggestions welcome!
 - [x] Calories - minute level precision
+- [ ] Sleep logs
 - [ ] Floors - minute level precision
 - [ ] Elevation - minute level precision
 - [ ] Food logs

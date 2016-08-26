@@ -48,7 +48,7 @@ def main():
 	convertor.UpdateTimezone(tzinfo)
 
 	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity']:
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity', 'body_fat']:
 		remote.CreateGoogleFitDataSource(dataType)
 
 	# Decide the start and end dates of sync
@@ -79,7 +79,7 @@ def main():
 			remote.SyncFitbitToGoogleFit('weight',date_stamp)
 
 		#----------------------------------     body fat   ------------------------
-		if params.getboolean('sync_body_fat') and False: # Disabling this temporarily. See issue #1.
+		if params.getboolean('sync_body_fat'):
 			remote.SyncFitbitToGoogleFit('body_fat',date_stamp)
 
 		#----------------------------------     calories   ------------------------

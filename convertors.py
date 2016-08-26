@@ -263,17 +263,17 @@ class Convertor:
 		type - type of data. Possible options: steps, weight, heart_rate, activity
 		"""
 		# Do NOT change these after the first sync!
-		model = 'charge-hr'
+		model,device_type = 'charge-hr', 'watch'
 		if type == 'steps':
 			dataType=dict(name='com.google.step_count.delta',field=[dict(name='steps',format='integer')])
 		elif type == 'distance':
 			dataType=dict(name='com.google.distance.delta',field=[dict(name='distance',format='floatPoint')])
 		elif type == 'weight':
 			dataType=dict(name='com.google.weight',field=[dict(name='weight',format='floatPoint')])
-			model='aria' # weighing machine
+			model,device_type='aria','scale' # weighing machine
 		elif type == 'body_fat':
-			dataType=dict(name='com.google.body.fat.percentage',field=[dict(name='fat',format='floatPoint')])
-			model='aria' # weighing machine
+			dataType=dict(name='com.google.body.fat.percentage',field=[dict(name='percentage',format='floatPoint')])
+			model,device_type='aria','scale' # weighing machine
 		elif type == 'heart_rate':
 			dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
 		elif type == 'calories':
@@ -287,7 +287,7 @@ class Convertor:
 			type='raw',
 			application=dict(name='fbit-gfit'),
 			dataType=dataType,
-			device=dict(type='watch',manufacturer='fitbit',model=model,
+			device=dict(type=device_type,manufacturer='fitbit',model=model,
 				uid='io.pkp.fbit-gfit',version='1'))
 
 	def GetDataSourceId(self, dataType):
