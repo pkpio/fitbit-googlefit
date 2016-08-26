@@ -24,6 +24,7 @@ class Remote:
 	"""Methods for remote api calls and synchronization from Fitbit to Google Fit"""
 	
 	FITBIT_API_URL = 'https://api.fitbit.com/1'
+	GFIT_MAX_POINTS_PER_UPDATE = 2000 # Max number of data points that can be sent in a single update request
 
 	def __init__(self, fitbitClient, googleClient, convertor, helper):
 		""" Intialize a remote object.
@@ -73,16 +74,21 @@ class Remote:
 		maxLogNs = max([point['endTimeNanos'] for point in data_points])
 		datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
-		self.googleClient.users().dataSources().datasets().patch(
-				userId='me',
-				dataSourceId=dataSourceId,
-				datasetId=datasetId,
-				body=dict(
+		if len(data_points) < self.GFIT_MAX_POINTS_PER_UPDATE:
+			self.googleClient.users().dataSources().datasets().patch(
+					userId='me',
 					dataSourceId=dataSourceId,
-					maxEndTimeNs=maxLogNs,
-					minStartTimeNs=minLogNs,
-					point=data_points)
-		).execute()
+					datasetId=datasetId,
+					body=dict(
+						dataSourceId=dataSourceId,
+						maxEndTimeNs=maxLogNs,
+						minStartTimeNs=minLogNs,
+						point=data_points)
+			).execute()
+		else:
+			half = int(len(data_points)/2)
+			self.WriteToGoogleFit(dataSourceId, data_points[:half])
+			self.WriteToGoogleFit(dataSourceId, data_points[half:])
 
 	def WriteSessionToGoogleFit(self, session_data):
 		"""Write data to google fit
