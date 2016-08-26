@@ -29,7 +29,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
   - [x] Hiking
   - [x] And a [few others][activities] -- suggestions welcome!
 - [x] Calories - minute level precision
-- [ ] Sleep logs
+- [x] Sleep logs - minute level precision
 - [ ] Floors - minute level precision
 - [ ] Elevation - minute level precision
 - [ ] Food logs
