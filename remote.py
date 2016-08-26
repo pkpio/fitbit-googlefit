@@ -234,17 +234,13 @@ class Remote:
 			endTimeMillis.append(google_session['endTimeMillis'])
 
 		if len(startTimeMillis) > 0:
-			print("Synced {} activities between : {} -- {}".format(len(activities),
+			print("Synced {} exercises between : {} -- {}".format(len(activities),
 				datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
 				datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
 		else:
-			print("No Fitbit activities logged since {}".format(start_date))
+			print("No Fitbit exercises logged since {}".format(start_date))
 			return
 
 		if activities_raw['pagination']['next'] != '':
 		 	self.SyncFitbitActivitiesToGoogleFit(dataSourceId, callurl=activities_raw['pagination']['next'])
-		else:
-			print("No more Fitbit activities to sync after {}".format(
-				datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d') ))
-
 

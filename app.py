@@ -93,6 +93,11 @@ def main():
 		remote.SyncFitbitActivitiesToGoogleFit(convertor.GetDataSourceId('activity'),start_date=start_date)
 
 if __name__ == '__main__':
+	print('')
 	main()
+	print('')
+	print('***********************************   Liked it ?   ************************')
+	print('Star the repository at https://github.com/praveendath92/fitbit-googlefit')
+	print('***************************************************************************')
 	print('')
 
