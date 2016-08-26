@@ -102,5 +102,5 @@ Add above line to your cron tab: ```crontab -e``` in Linux. Sync logs will be st
 
 Note : 
 -------
-1. Get command line help using the -h flag. 
+1. Get command line help using the ```-h``` flag. 
 2. Arguments passed through command-line take higher priority over ```config.ini``` values.
