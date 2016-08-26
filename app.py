@@ -48,7 +48,7 @@ def main():
 	convertor.UpdateTimezone(tzinfo)
 
 	# setup Google Fit data sources for each data type supported
-	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity', 'body_fat']:
+	for dataType in ['steps', 'distance', 'weight', 'heart_rate', 'calories', 'activity', 'body_fat', 'sleep']:
 		remote.CreateGoogleFitDataSource(dataType)
 
 	# Decide the start and end dates of sync
@@ -86,11 +86,15 @@ def main():
 		if params.getboolean('sync_calories'):
 			remote.SyncFitbitToGoogleFit('calories',date_stamp)
 
+		#----------------------------------     sleep   ------------------------
+		if params.getboolean('sync_sleep'):
+			remote.SyncFitbitToGoogleFit('sleep',date_stamp)
+
 		print('')
 
 	#----------------------------------  activity logs  ------------------------
 	if params.getboolean('sync_activities'):
-		remote.SyncFitbitActivitiesToGoogleFit(convertor.GetDataSourceId('activity'),start_date=start_date)
+		remote.SyncFitbitActivitiesToGoogleFit(start_date=start_date)
 
 if __name__ == '__main__':
 	print('')

@@ -131,6 +131,8 @@ class Remote:
 			return self.SyncFitbitIntradayToGoogleFit(dataType, date_stamp)
 		elif dataType in ('weight','body_fat'):
 			return self.SyncFitbitLogToGoogleFit(dataType, date_stamp)
+		elif dataType in ('sleep'):
+			return self.SyncFitbitSleepToGoogleFit(date_stamp)
 		else:
 			raise ValueError("Unexpected data type given!")
 
@@ -190,25 +192,46 @@ class Remote:
 		self.WriteToGoogleFit(dataSourceId, googlePoints)
 		print("synced {}".format(dataType))
 
-	def SyncFitbitSleepToGoogleFit(self, dataSourceId, date_stamp):
+	def SyncFitbitSleepToGoogleFit(self, date_stamp):
 		"""
 		Sync sleep data for a given day from Fitbit to Google fit.
 
-		dataSourceId -- google fit data sourceid for activity segment
 		date_stamp -- timestamp in yyyy-mm-dd format of the start day
 		"""
-		raise NotImplementedError('Feature not implemented yet!')
+		dataSourceId = self.convertor.GetDataSourceId('sleep')
+		date_obj = self.convertor.parseHumanReadableDate(date_stamp)
 
-	def SyncFitbitActivitiesToGoogleFit(self, dataSourceId, start_date='', callurl=None):
+		# Get sleep data for a given date
+		fitbitSleeps = self.ReadFromFitbit(self.fitbitClient.get_sleep,date_obj)['sleep']
+
+		# Iterate over each sleep log for that day
+		sleep_count = 0
+		for fit_sleep in fitbitSleeps:
+			minute_points = fit_sleep['minuteData']
+			sleep_count += 1
+
+			# convert all fitbit data points to google fit data points
+			googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,'sleep') for point in minute_points]
+
+			# 1. Write a fit session about sleep
+			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, fit_sleep['logId'])
+			self.WriteSessionToGoogleFit(google_session)
+
+			# 2. create activity segment data points for the activity
+			self.WriteToGoogleFit(dataSourceId, googlePoints)
+
+		print("synced sleep - {} logs".format(sleep_count))
+
+	def SyncFitbitActivitiesToGoogleFit(self, start_date='', callurl=None):
 		"""
 		Sync activities data starting from a given day from Fitbit to Google fit.
 
-		dataSourceId -- google fit data sourceid for activity segment
 		start_date -- timestamp in yyyy-mm-dd format of the start day
 		callurl -- url to fetch activities from
 		"""
 		# Fitbit activities list endpoint is in beta stage. It may break in the future and not directly supported
 		# by the python client library.
+		dataSourceId = self.convertor.GetDataSourceId('activity')
 		if not callurl:
 			callurl = '{}/user/-/activities/list.json?afterDate={}&sort=asc&offset=0&limit=20'.format(self.FITBIT_API_URL,start_date)
 		activities_raw = self.ReadFromFitbit(self.fitbitClient.make_request, callurl)
@@ -242,5 +265,5 @@ class Remote:
 			return
 
 		if activities_raw['pagination']['next'] != '':
-		 	self.SyncFitbitActivitiesToGoogleFit(dataSourceId, callurl=activities_raw['pagination']['next'])
+		 	self.SyncFitbitActivitiesToGoogleFit(callurl=activities_raw['pagination']['next'])
 

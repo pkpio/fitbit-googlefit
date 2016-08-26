@@ -88,6 +88,8 @@ class Convertor:
 			return self.ConvertFibitBodyfatPoint(date, data_point)
 		elif dataType == 'calories':
 			return self.ConvertFibitCaloriesPoint(date, data_point)
+		elif dataType == 'sleep':
+			return self.ConvertFibitSleepPoint(date, data_point)
 		else:
 			raise ValueError("Unexpected data type given!")
 
@@ -189,6 +191,53 @@ class Convertor:
 			value=[dict(fpVal=data_point['fat'])]
 			)
 
+	def ConvertFibitSleepPoint(self, date, data_point):
+		"""Converts a single Fitbit intraday distance data point to Google fit data point
+
+		date -- date to which the data_point belongs to in "yyyy-mm-dd" format
+		data_point -- a single Fitbit intraday step data point
+		"""
+		timestamp = "{} {}".format(date, data_point['dateTime'])
+		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
+
+		# Convert sleep data point to google fit sleep types
+		if data_point['value'] == 1:
+			sleepType = 72
+		elif data_point['value'] == 2:
+			sleepType = 109
+		elif data_point['value'] == 3:
+			sleepType = 112
+		else:
+			sleepType = 72
+
+		return dict(
+			dataTypeName='com.google.activity.segment',
+			startTimeNanos=epoch_time_nanos,
+			endTimeNanos=epoch_time_nanos+110,
+			value=[dict(intVal=sleepType)]
+			)
+
+
+	def ConvertGFitSleepSession(self, sleep_points, logId):
+		"""Converts a list of Google Fit sleep points to Google fit session 
+
+		sleep_points -- Google Fit sleep points
+		"""
+		minLogMillis = min([point['startTimeNanos'] for point in sleep_points]) / 10**6
+		maxLogMillis = max([point['endTimeNanos'] for point in sleep_points]) / 10**6
+
+		return dict(
+			modifiedTimeMillis=int((time.time() * 1000)),
+			startTimeMillis=minLogMillis,
+			endTimeMillis=maxLogMillis,
+			activeTimeMillis=maxLogMillis-minLogMillis,
+			description='A Fitbit sleep log',
+			activityType=72,
+			application=dict(name='Fbit-Gfit',detailsUrl=''),
+			id='io.pkp.fbit-gfit:fitbit:{}'.format(logId),
+			name='Sleep'
+			)
+
 	def ConvertFitbitActivityLog(self, activity):
 		"""Converts a single Fitbit activity log to Google fit session 
 
@@ -278,7 +327,7 @@ class Convertor:
 			dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
 		elif type == 'calories':
 			dataType=dict(name='com.google.calories.expended',field=[dict(name='calories',format='floatPoint')])
-		elif type == 'activity':
+		elif type in ('activity','sleep'):
 			dataType=dict(name='com.google.activity.segment',field=[dict(name='activity',format='integer')])
 		else:
 			raise ValueError("Unexpected data type given!")
