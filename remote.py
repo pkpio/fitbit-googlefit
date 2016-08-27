@@ -158,7 +158,14 @@ class Remote:
 		# Get intraday data from fitbit
 		interday_raw = self.ReadFromFitbit(self.fitbitClient.intraday_time_series, res_path, base_date=date_stamp,
 			detail_level=detail_level)
-		intraday_data = interday_raw[resp_id]['dataset']
+		try:
+			intraday_data = interday_raw[resp_id]['dataset']
+		except KeyError as e:
+			print('')
+			print('Uh oh! Looks like you didn\'t set your "OAuth 2.0 Application Type" to "Personal" during Fitbit setup.')
+			print('For more information, refer https://github.com/praveendath92/fitbit-googlefit/issues/2')
+			print('')
+			exit()
 
 		# convert all fitbit data points to google fit data points
 		googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,dataType) for point in intraday_data]
