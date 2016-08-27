@@ -172,7 +172,7 @@ class Remote:
 
 		# Write a day of fitbit data to Google fit
 		self.WriteToGoogleFit(dataSourceId, googlePoints)
-		print("synced {}".format(dataType))
+		print("synced {} - {} data points".format(dataType,len(googlePoints)) )
 
 	def SyncFitbitLogToGoogleFit(self, dataType, date_stamp):
 		"""
@@ -197,7 +197,7 @@ class Remote:
 
 		# Write a day of fitbit data to Google fit
 		self.WriteToGoogleFit(dataSourceId, googlePoints)
-		print("synced {}".format(dataType))
+		print("synced {} - {} logs".format(dataType,len(googlePoints)) )
 
 	def SyncFitbitSleepToGoogleFit(self, date_stamp):
 		"""
