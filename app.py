@@ -18,6 +18,7 @@ from helpers import *
 from convertors import *
 from remote import *
 
+VERSION = "0.3"
 DATE_FORMAT = "%Y-%m-%d"
 
 def main():
@@ -29,7 +30,13 @@ def main():
 	parser.add_argument("-e", "--end-date", default="", help="End data for sync in YYYY-MM-DD format")
 	parser.add_argument("-g", "--google-creds", default="auth/google.json", help="Google credentials file")
 	parser.add_argument("-f", "--fitbit-creds", default="auth/fitbit.json", help="Fitbit credentials file")
+	parser.add_argument("-v", "--version", help="Fitbit-GoogleFit migration tool version", action="store_true")
 	args = parser.parse_args()
+
+	# Show version information if required
+	if args.version:
+		print('         fitbit-googlefit version {}'.format(VERSION))
+		print('')
 
 	# Reading configuration from config file
 	config = configparser.ConfigParser()
