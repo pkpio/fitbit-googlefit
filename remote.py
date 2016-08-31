@@ -75,7 +75,8 @@ class Remote:
 		datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
 		if len(data_points) < self.GFIT_MAX_POINTS_PER_UPDATE:
-			self.googleClient.users().dataSources().datasets().patch(
+			try:
+				self.googleClient.users().dataSources().datasets().patch(
 					userId='me',
 					dataSourceId=dataSourceId,
 					datasetId=datasetId,
@@ -84,7 +85,11 @@ class Remote:
 						maxEndTimeNs=maxLogNs,
 						minStartTimeNs=minLogNs,
 						point=data_points)
-			).execute()
+					).execute()
+			except BrokenPipeError as e:
+				# Re-create the googleClient since the last one is broken
+				self.googleClient = self.helper.GetGoogleClient()
+				self.WriteToGoogleFit(dataSourceId, data_points)
 		else:
 			half = int(len(data_points)/2)
 			self.WriteToGoogleFit(dataSourceId, data_points[:half])
@@ -95,10 +100,15 @@ class Remote:
 
 		session_data -- a session data
 		"""
-		self.googleClient.users().sessions().update(
-			userId='me',
-			sessionId=session_data['id'],
-			body=session_data).execute()
+		try:
+			self.googleClient.users().sessions().update(
+				userId='me',
+				sessionId=session_data['id'],
+				body=session_data).execute()
+		except BrokenPipeError as e:
+			# Re-create the googleClient since the last one is broken
+			self.googleClient = self.helper.GetGoogleClient()
+			self.WriteSessionToGoogleFit(session_data)
 
 
 	def CreateGoogleFitDataSource(self, dataType):
