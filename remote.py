@@ -52,9 +52,11 @@ class Remote:
 		try:
 		 	resp = api_call(*args,**kwargs)
 		except HTTPTooManyRequests as e:
+			print('')
 			print('-------------------- Fitbit API rate limit reached -------------------')
 			retry_time = datetime.datetime.now()+timedelta(seconds=e.retry_after_secs)
 			print('Will retry at {}'.format(retry_time.strftime('%H:%M:%S')))
+			print('')
 			time.sleep(e.retry_after_secs)
 			resp = self.ReadFromFitbit(api_call,*args,**kwargs)
 		return resp
