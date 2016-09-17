@@ -11,7 +11,7 @@ import dateutil.tz
 import dateutil.parser
 import configparser
 import json
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 import fitbit
 from fitbit.exceptions import HTTPTooManyRequests
@@ -19,6 +19,8 @@ from apiclient.discovery import build
 from oauth2client.file import Storage
 from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
+
+from app import DATE_FORMAT
 
 class Remote:
 	"""Methods for remote api calls and synchronization from Fitbit to Google Fit"""
@@ -227,8 +229,13 @@ class Remote:
 			minute_points = fit_sleep['minuteData']
 			sleep_count += 1
 
+			# save first time stamp for comparison
+			start_time = minute_points[0]['dateTime']
+			# convert to date, add 1 day, convert back to string
+			next_date_stamp = (datetime.strptime(date_stamp, DATE_FORMAT) + timedelta(1)).strftime(DATE_FORMAT)
+
 			# convert all fitbit data points to google fit data points
-			googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,'sleep') for point in minute_points]
+			googlePoints = [self.convertor.ConvertFibitPoint((date_stamp if start_time <= point['dateTime'] else next_date_stamp),point,'sleep') for point in minute_points]
 
 			# 1. Write a fit session about sleep
 			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, fit_sleep['logId'])
