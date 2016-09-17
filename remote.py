@@ -6,7 +6,6 @@ __email__ = "mail@pkp.io"
 import time
 import argparse
 import logging
-import datetime
 import dateutil.tz
 import dateutil.parser
 import configparser
@@ -56,7 +55,7 @@ class Remote:
 		except HTTPTooManyRequests as e:
 			print('')
 			print('-------------------- Fitbit API rate limit reached -------------------')
-			retry_time = datetime.datetime.now()+timedelta(seconds=e.retry_after_secs)
+			retry_time = datetime.now()+timedelta(seconds=e.retry_after_secs)
 			print('Will retry at {}'.format(retry_time.strftime('%H:%M:%S')))
 			print('')
 			time.sleep(e.retry_after_secs)
@@ -283,8 +282,8 @@ class Remote:
 
 		if len(startTimeMillis) > 0:
 			print("Synced {} exercises between : {} -- {}".format(len(activities),
-				datetime.datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
-				datetime.datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
+				datetime.fromtimestamp(min(startTimeMillis)/1000).strftime('%Y-%m-%d'),
+				datetime.fromtimestamp(max(endTimeMillis)/1000).strftime('%Y-%m-%d')) )
 		else:
 			print("No Fitbit exercises logged since {}".format(start_date))
 			return
