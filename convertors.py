@@ -213,7 +213,7 @@ class Convertor:
 		return dict(
 			dataTypeName='com.google.activity.segment',
 			startTimeNanos=epoch_time_nanos,
-			endTimeNanos=epoch_time_nanos+110,
+			endTimeNanos=epoch_time_nanos+60000000000,
 			value=[dict(intVal=sleepType)]
 			)
 
