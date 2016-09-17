@@ -235,7 +235,8 @@ class Remote:
 			next_date_stamp = (datetime.strptime(date_stamp, DATE_FORMAT) + timedelta(1)).strftime(DATE_FORMAT)
 
 			# convert all fitbit data points to google fit data points
-			googlePoints = [self.convertor.ConvertFibitPoint((date_stamp if start_time <= point['dateTime'] else next_date_stamp),point,'sleep') for point in minute_points]
+			googlePoints = [self.convertor.ConvertFibitPoint((date_stamp if start_time <= point['dateTime'] else \
+				next_date_stamp),point,'sleep') for point in minute_points]
 
 			# 1. Write a fit session about sleep
 			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, fit_sleep['logId'])
