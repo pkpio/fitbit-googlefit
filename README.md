@@ -86,6 +86,8 @@ Note :
 ----------------------------
 Update the ```config.ini``` with own choices and start the sync using ```python3 app.py```
 
+![demo](http://i.giphy.com/3oz8xKllkMr9PrRSMw.gif)
+
 Sync examples:
 --------------
 - With date stamps : ```python3 app.py -s 2016-08-20 -e 2016-08-22```
