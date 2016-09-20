@@ -6,7 +6,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 
 ![Fitbit Steps](/screenshots/fitbit_steps.png "Fitbit steps")
 ![GoogleFit Steps](/screenshots/googlefit_steps.png "Google Fit steps")
-
+![demo](http://i.giphy.com/3oz8xKllkMr9PrRSMw.gif)
 
 # Features
 ----------------------------
@@ -85,8 +85,6 @@ Note :
 # Usage
 ----------------------------
 Update the ```config.ini``` with own choices and start the sync using ```python3 app.py```
-
-![demo](http://i.giphy.com/3oz8xKllkMr9PrRSMw.gif)
 
 Sync examples:
 --------------
