@@ -251,6 +251,8 @@ class Convertor:
 			activityType = 7
 		elif activity['activityName'] in ('Run','Running'):
 			activityType = 8
+		elif activity['activityName'] in ('Treadmill'):
+			activityType = 88
 		elif activity['activityName'] in ('Volleyball','Sport'):
 			activityType = 89
 		elif activity['activityName'] in ('Swimming', 'Swim'):
