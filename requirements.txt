@@ -10,3 +10,4 @@ fitbit>=0.2.2
 google_api_python_client>=1.5.1
 configparser>=3.5.0
 parsedatetime>=2.1
+oauth2client>=3.0,<4.0
