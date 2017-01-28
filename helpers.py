@@ -47,5 +47,5 @@ class Helper(object):
 		"""
 		credentials = json.load(open(self.fitbitCredsFile)) 
 		for t in ('access_token', 'refresh_token'):
-			credentials[t] = fitbitClient.client.session.token[t]
+			credentials[t] = fitbitClient.client.token[t]
 		json.dump(credentials, open(self.fitbitCredsFile, 'w'))

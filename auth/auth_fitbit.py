@@ -101,8 +101,8 @@ def main():
     credentials = dict(
         client_id=client_id,
         client_secret=client_secret,
-        access_token=server.oauth.session.token['access_token'],
-        refresh_token=server.oauth.session.token['refresh_token'])
+        access_token=server.oauth.token['access_token'],
+        refresh_token=server.oauth.token['refresh_token'])
     json.dump(credentials, open('fitbit.json', 'w'))
 
 if __name__ == '__main__':
