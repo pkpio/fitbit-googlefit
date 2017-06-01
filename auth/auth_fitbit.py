@@ -31,7 +31,8 @@ import cherrypy
 from fitbit.api import FitbitOauth2Client
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
 from requests_oauthlib import OAuth2Session
-
+import argparse
+import urllib.parse as urlparse
 
 class OAuth2Server:
     def __init__(self, client_id, client_secret,
@@ -55,6 +56,23 @@ class OAuth2Server:
         threading.Timer(1, webbrowser.open, args=(url,)).start()
         cherrypy.quickstart(self)
 
+    def headless_authorize(self):
+        """
+        Authorize without a display using only TTY.
+        """
+        url, _ = self.oauth.authorize_token_url(redirect_uri=self.redirect_uri)
+        # Ask the user to open this url on a system with browser
+        print('\n-------------------------------------------------------------------------')
+        print('\t\tOpen the below URL in your browser\n')
+        print(url)
+        print('\n-------------------------------------------------------------------------\n')
+        print('NOTE: After authenticating on Fitbit website, you will redirected to a URL which ')
+        print('throws an ERROR. This is expected! Just copy the full redirected here.\n')
+        redirected_url = input('Full redirected URL: ')
+        params = urlparse.parse_qs(urlparse.urlparse(redirected_url).query)
+        print(params['code'][0])
+        self.authenticate_code(code=params['code'][0])
+
     @cherrypy.expose
     def index(self, state, code=None, error=None):
         """
@@ -63,19 +81,26 @@ class OAuth2Server:
         """
         error = None
         if code:
-            try:
-                self.oauth.fetch_access_token(code, self.redirect_uri)
-            except MissingTokenError:
-                error = self._fmt_failure(
-                    'Missing access token parameter.</br>Please check that '
-                    'you are using the correct client_secret')
-            except MismatchingStateError:
-                error = self._fmt_failure('CSRF Warning! Mismatching state')
+            self.authenticate_code(code=code)
         else:
             error = self._fmt_failure('Unknown error while authenticating')
         # Use a thread to shutdown cherrypy so we can return HTML first
         self._shutdown_cherrypy()
         return error if error else self.success_html
+
+    def authenticate_code(self, code=None):
+        """
+        Final stage of authentication using the code from Fitbit.
+        """
+        try:
+            self.oauth.fetch_access_token(code, self.redirect_uri)
+        except MissingTokenError:
+            error = self._fmt_failure(
+                'Missing access token parameter.</br>Please check that '
+                'you are using the correct client_secret'
+            )
+        except MismatchingStateError:
+            error = self._fmt_failure('CSRF Warning! Mismatching state')
 
     def _fmt_failure(self, message):
         tb = traceback.format_tb(sys.exc_info()[2])
@@ -89,18 +114,22 @@ class OAuth2Server:
 
 
 def main():
-    if not (len(sys.argv) == 3):
-        print("Arguments 'client ID', 'client secret' are required")
-        sys.exit(1)
-    client_id = sys.argv[1]
-    client_secret = sys.argv[2]
+    # Arguments parsing
+    parser = argparse.ArgumentParser("Client ID and Secret are mandatory arguments")
+    parser.add_argument("-i", "--id", required=True, help="Client id")
+    parser.add_argument("-s", "--secret", required=True, help="Client secret")
+    parser.add_argument("-c", "--headless", default=False, help="Authenticate only using console (for headless systems)", action="store_true")
+    args = parser.parse_args()
 
-    server = OAuth2Server(client_id, client_secret)	
-    server.browser_authorize()
+    server = OAuth2Server(args.id, args.secret)
+    if(args.headless):
+        server.headless_authorize()
+    else:   
+        server.browser_authorize()
 
     credentials = dict(
-        client_id=client_id,
-        client_secret=client_secret,
+        client_id=args.id,
+        client_secret=args.secret,
         access_token=server.oauth.token['access_token'],
         refresh_token=server.oauth.token['refresh_token'])
     json.dump(credentials, open('fitbit.json', 'w'))
