@@ -9,8 +9,9 @@ from oauth2client.tools import run_flow, argparser
 def main():
     # Arguments parsing
     parser = argparse.ArgumentParser("Client ID and Secret are mandatory arguments")
-    parser.add_argument("-i", "--id", required=True, help="Client id")
-    parser.add_argument("-s", "--secret", required=True, help="Client secret")
+    parser.add_argument("-i", "--id", required=True, help="Client id", metavar='<client-id>')
+    parser.add_argument("-s", "--secret", required=True, help="Client secret", 
+        metavar='<client-secret>')
     parser.add_argument("-c", "--headless", default=False, 
         help="Authenticate only using console (for headless systems)", action="store_true")
     args = parser.parse_args()
