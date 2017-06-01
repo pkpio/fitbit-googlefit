@@ -38,7 +38,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 
 # Setup
 ----------------------------
-You have to register your own Fitbit and Google Fit applications. This setup is a one time thing. If you doing this on a system without a display, refer to Headless Authentication section below.
+You have to register your own Fitbit and Google Fit applications. This setup is a one time thing.
 
 1. Install dependencies
 -------------------
