@@ -38,7 +38,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 
 # Setup
 ----------------------------
-You have to register your own Fitbit and Google Fit applications. This setup is a one time thing.
+You have to register your own Fitbit and Google Fit applications. This setup is a one time thing. If you doing this on a system without a display, refer to Headless Authentication section below.
 
 1. Install dependencies
 -------------------
@@ -68,7 +68,7 @@ Note :
 3. Application Type MUST be Personal
 ```
 - Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
-- ```cd /auth``` and run ```python3 auth_fitbit.py <client-id> <client-secret>```
+- ```cd /auth``` and run ```python3 auth_fitbit.py -i <client-id> -s <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
@@ -78,7 +78,7 @@ Note :
 - Click ```Continue```. Then select ```Go to credentials``` and select ```Client ID```
 - Under Application type, select ```Other``` and hit ```Create```
 - Make a note of ```client ID``` and ```client secret```
-- ```cd /auth``` and run ```python3 auth_google.py <client-id> <client-secret>```
+- ```cd /auth``` and run ```python3 auth_google.py -i <client-id> -s <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
@@ -99,6 +99,14 @@ You can setup a cron task to automatically sync everyday at 2:30 AM.
 ```30 2 * * * /path-to-repo/fitbit-googlefit/cron.sh >> /path-to-repo/fitbit-googlefit/cron.log 2>&1```
 
 Add above line to your cron tab: ```crontab -e``` in Linux. Sync logs will be stored to ```cron.log``` in repository.
+
+
+# Headless authentication
+----------------------------
+If you want to do the authentication process on a system without a display - such as a raspberry pi or a remote server, pass `--headless` or `-c` option to the authentication scripts. See below examples.
+
+`python3 auth_fitbit.py -i clientid -s clientsecret --headless`
+`python3 auth_google.py -i clientid -s clientsecret --headless`
 
 Note : 
 -------
