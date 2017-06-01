@@ -103,10 +103,11 @@ Add above line to your cron tab: ```crontab -e``` in Linux. Sync logs will be st
 
 # Headless authentication
 ----------------------------
-If you want to do the authentication process on a system without a display - such as a raspberry pi or a remote server, pass `--headless` or `-c` option to the authentication scripts. See below examples.
+If you want to do the authentication process on a system without a display - such as a raspberry pi or a remote server, pass `--console` or `-c` option to the authentication scripts. See below examples.
 
-`python3 auth_fitbit.py -i clientid -s clientsecret --headless`
-`python3 auth_google.py -i clientid -s clientsecret --headless`
+`python3 auth_fitbit.py -i clientid -s clientsecret --console`
+
+`python3 auth_google.py -i clientid -s clientsecret --console`
 
 Note : 
 -------

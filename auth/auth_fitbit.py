@@ -119,12 +119,12 @@ def main():
     parser.add_argument("-i", "--id", required=True, help="Client id", metavar='<client-id>')
     parser.add_argument("-s", "--secret", required=True, help="Client secret", 
         metavar='<client-secret>')
-    parser.add_argument("-c", "--headless", default=False, 
+    parser.add_argument("-c", "--console", default=False, 
         help="Authenticate only using console (for headless systems)", action="store_true")
     args = parser.parse_args()
 
     server = OAuth2Server(args.id, args.secret)
-    if args.headless:
+    if args.console:
         server.headless_authorize()
     else:   
         server.browser_authorize()

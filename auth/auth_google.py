@@ -12,7 +12,7 @@ def main():
     parser.add_argument("-i", "--id", required=True, help="Client id", metavar='<client-id>')
     parser.add_argument("-s", "--secret", required=True, help="Client secret", 
         metavar='<client-secret>')
-    parser.add_argument("-c", "--headless", default=False, 
+    parser.add_argument("-c", "--console", default=False, 
         help="Authenticate only using console (for headless systems)", action="store_true")
     args = parser.parse_args()
 
@@ -24,7 +24,7 @@ def main():
 
     flow = OAuth2WebServerFlow(args.id, args.secret, scopes)
     storage = Storage('google.json')
-    flags = ['--noauth_local_webserver'] if args.headless else []
+    flags = ['--noauth_local_webserver'] if args.console else []
     run_flow(flow, storage, argparser.parse_args(flags))
 
 if __name__ == '__main__':
