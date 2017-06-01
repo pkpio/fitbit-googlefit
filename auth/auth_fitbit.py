@@ -123,7 +123,7 @@ def main():
     args = parser.parse_args()
 
     server = OAuth2Server(args.id, args.secret)
-    if(args.headless):
+    if args.headless:
         server.headless_authorize()
     else:   
         server.browser_authorize()
