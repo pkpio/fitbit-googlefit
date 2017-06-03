@@ -1,3 +1,5 @@
+**Promo**: Have a resolution to run/bike at least X kilometers this year? Checkout [fitgoal](https://fitgoal.herokuapp.com/) - it helps you keep track of your yearly distance covered with a neat graph. See [preview](https://fitgoal.herokuapp.com/graphs/praveen).
+
 # Introduction
 ----------------------------
 Export all your Fitbit data to Google Fit. If you find this useful, please **star** :star: the repository on Github.
