@@ -1,4 +1,4 @@
-**Promo**: Have a resolution to run/bike at least X kilometers this year? Checkout [fitgoal](https://fitgoal.herokuapp.com/) - it helps you keep track of your yearly distance covered with a neat graph. See [preview](https://fitgoal.herokuapp.com/graphs/praveen).
+**Promo**: Have a resolution to run/bike at least X kilometers this year? Checkout [fitgoal](https://fitgoal.herokuapp.com/) - it helps you keep track of your yearly distance covered with a neat graph. Preview [my graph](http://fitgoal.herokuapp.com/graphs/347TCH).
 
 # Introduction
 ----------------------------
