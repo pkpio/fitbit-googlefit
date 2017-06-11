@@ -2,6 +2,8 @@
 
 # Introduction
 ----------------------------
+
+[![Join the chat at https://gitter.im/fitbit-googlefit/Lobby](https://badges.gitter.im/fitbit-googlefit/Lobby.svg)](https://gitter.im/fitbit-googlefit/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Export all your Fitbit data to Google Fit. If you find this useful, please **star** :star: the repository on Github.
 
 Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fine granularity for the data.
