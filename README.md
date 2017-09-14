@@ -44,7 +44,11 @@ You have to register your own Fitbit and Google Fit applications. This setup is 
 
 1. Install dependencies
 -------------------
-This is a python3 application so install all the dependencies using ```sudo pip3 install -r requirements.txt```
+This is a python3 application so install all the dependencies 
+
+- Create virtualenv ```virutalenv fitbitenv```
+- Activate env ```source fitbitenv/bin/activate``` 
+- Install dependencies using ```sudo pip3 install -r requirements.txt```
 
 
 2. Fitbit setup
@@ -70,7 +74,8 @@ Note :
 3. Application Type MUST be Personal
 ```
 - Hit save and make a note of ```OAuth 2.0 Client ID``` and ```Client Secret```
-- ```cd /auth``` and run ```python3 auth_fitbit.py -i <client-id> -s <client-secret>```
+- Navigate to auth folder  ```cd /auth``` 
+- run ```python3 auth_fitbit.py -i <client-id> -s <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
@@ -80,7 +85,8 @@ Note :
 - Click ```Continue```. Then select ```Go to credentials``` and select ```Client ID```
 - Under Application type, select ```Other``` and hit ```Create```
 - Make a note of ```client ID``` and ```client secret```
-- ```cd /auth``` and run ```python3 auth_google.py -i <client-id> -s <client-secret>```
+- Navigate to auth folder ```cd /auth``` 
+- run ```python3 auth_google.py -i <client-id> -s <client-secret>```
 - This opens a popup in the browser. Authenticate and done!
 
 
