@@ -48,7 +48,7 @@ This is a python3 application so install all the dependencies
 
 - Create virtualenv ```virutalenv fitbitenv```
 - Activate env ```source fitbitenv/bin/activate``` 
-- Install dependencies using ```sudo pip3 install -r requirements.txt```
+- Install dependencies using ```pip3 install -r requirements.txt```
 
 
 2. Fitbit setup
