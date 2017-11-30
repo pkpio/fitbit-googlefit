@@ -19,6 +19,7 @@ from oauth2client.file import Storage
 from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
 
+from random import randint
 from app import DATE_FORMAT
 
 class Remote:
@@ -53,12 +54,14 @@ class Remote:
 		try:
 		 	resp = api_call(*args,**kwargs)
 		except HTTPTooManyRequests as e:
+			# retry between 5-10 minutes after the hour
+			seconds_till_retry = e.retry_after_secs + randint(300,600)
 			print('')
 			print('-------------------- Fitbit API rate limit reached -------------------')
-			retry_time = datetime.now()+timedelta(seconds=e.retry_after_secs)
+			retry_time = datetime.now()+timedelta(seconds=seconds_till_retry)
 			print('Will retry at {}'.format(retry_time.strftime('%H:%M:%S')))
 			print('')
-			time.sleep(e.retry_after_secs)
+			time.sleep(seconds_till_retry)
 			resp = self.ReadFromFitbit(api_call,*args,**kwargs)
 		return resp
 
