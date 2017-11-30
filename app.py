@@ -17,6 +17,7 @@ from datetime import timedelta, date
 from helpers import *
 from convertors import *
 from remote import *
+from sys import exit
 
 VERSION = "0.3"
 DATE_FORMAT = "%Y-%m-%d"
@@ -104,12 +105,17 @@ def main():
 		remote.SyncFitbitActivitiesToGoogleFit(start_date=start_date)
 
 if __name__ == '__main__':
-	print('')
-	main()
-	print('')
-	print('--------------------------------------------------------------------------')
-	print('                                     Like it ?                            ')
-	print('star the repository : https://github.com/praveendath92/fitbit-googlefit')
-	print('--------------------------------------------------------------------------')
-	print('')
-
+	try:
+		print('')
+		main()
+		print('')
+		print('--------------------------------------------------------------------------')
+		print('                                     Like it ?                            ')
+		print('star the repository : https://github.com/praveendath92/fitbit-googlefit')
+		print('--------------------------------------------------------------------------')
+		print('')
+	except KeyboardInterrupt:
+		print('')
+		print('Stopping...')
+		print('')
+		exit(0)
