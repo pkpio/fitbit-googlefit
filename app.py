@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 """
-Main class / entry point for the application 
+Main class / entry point for the application
 
 __author__ = "Praveen Kumar Pendyala"
 __email__ = "mail@pkp.io"
 """
-import time
-import argparse
-import logging
-import datetime
-import dateutil.parser
-import configparser
-import json
+import time,argparse,logging,datetime,dateutil.parser,configparser,json,os
 from datetime import timedelta, date
-
 from helpers import *
 from convertors import *
 from remote import *
 from sys import exit
+from shutil import copyfile,which
+from time import sleep
+from pathlib import Path
 
 VERSION = "0.3"
 DATE_FORMAT = "%Y-%m-%d"
@@ -38,6 +34,45 @@ def main():
 	if args.version:
 		print('         fitbit-googlefit version {}'.format(VERSION))
 		print('')
+
+	#copy the config file from template and edit it
+	try:
+	    config = Path("./config.ini")
+	    configTemplate = Path("./config.template.ini")
+	    # check if config.ini already exists
+	    if config.is_file() == False:
+	        # if config.ini doesn't exist, copy it from the template
+	        copyfile(str(configTemplate), str(config))
+
+	        #check for $EDITOR, or else use first standard editor
+	        if os.environ.get("EDITOR"):
+	            print("Found $EDITOR")
+	            editor = which(os.environ.get("EDITOR"))
+	        elif which("nano"):
+	            print("Running nano")
+	            editor = which("nano")
+	        elif which("vim"):
+	            print("Running VIM")
+	            editor = which("vim")
+	        elif which("vi"):
+	            print("Running VI")
+	            editor = which("vi")
+	        else:
+	            #no editors found, copy template as is and give them a chance to quit the app to change the config themselves
+	            print("\n======================================================================")
+	            print("using default config")
+	            print("press Ctrl+c if you wish to edit config.ini with your own editor first")
+	            print("======================================================================\n")
+	            sleep(5)
+	        if editor:
+	            print("\n======================================================================")
+	            print("Customize the config file...")
+	            print("======================================================================\n")
+	            sleep(2)
+	            os.system(editor + " " + str(config))
+	    print("done")
+	except KeyError:
+	    pass
 
 	# Reading configuration from config file
 	config = configparser.ConfigParser()
@@ -73,11 +108,11 @@ def main():
 		#----------------------------------     steps      ------------------------
 		if params.getboolean('sync_steps'):
 			remote.SyncFitbitToGoogleFit('steps',date_stamp)
-		    
+
 		#----------------------------------     distance   ------------------------
 		if params.getboolean('sync_distance'):
 			remote.SyncFitbitToGoogleFit('distance',date_stamp)
-		    
+
 		#----------------------------------     heart rate ------------------------
 		if params.getboolean('sync_heartrate'):
 			remote.SyncFitbitToGoogleFit('heart_rate',date_stamp)
@@ -114,6 +149,8 @@ if __name__ == '__main__':
 		print('star the repository : https://github.com/praveendath92/fitbit-googlefit')
 		print('--------------------------------------------------------------------------')
 		print('')
+	except KeyError:
+	    pass
 	except KeyboardInterrupt:
 		print('')
 		print('Stopping...')
