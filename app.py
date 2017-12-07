@@ -5,15 +5,24 @@ Main class / entry point for the application
 __author__ = "Praveen Kumar Pendyala"
 __email__ = "mail@pkp.io"
 """
-import time,argparse,logging,datetime,dateutil.parser,configparser,json,os,subprocess
+from pathlib import Path
+from shutil import copyfile,which
+import os
+
+fitbitenvloc = Path("./fitbitenv")
+if fitbitenvloc.is_dir() == True:
+	os.system(". ./fitbitenv/bin/activate")
+else:
+	os.system("virtualenv --python=python3 fitbitenv && . ./fitbitenv/bin/activate && pip3 install -r ./requirements.txt")
+
+
+import time,argparse,logging,datetime,dateutil.parser,configparser,json,subprocess
 from datetime import timedelta, date
 from helpers import *
 from convertors import *
 from remote import *
 from sys import exit
-from shutil import copyfile,which
 from time import sleep
-from pathlib import Path
 from auth import auth_fitbit,auth_google
 
 VERSION = "0.3"
