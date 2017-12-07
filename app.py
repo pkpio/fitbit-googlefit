@@ -14,6 +14,7 @@ from sys import exit
 from shutil import copyfile,which
 from time import sleep
 from pathlib import Path
+from auth import auth_fitbit,auth_google
 
 VERSION = "0.3"
 DATE_FORMAT = "%Y-%m-%d"
@@ -70,9 +71,42 @@ def main():
 	            print("======================================================================\n")
 	            sleep(2)
 	            os.system(editor + " " + str(config))
-	    print("done")
 	except KeyError:
 	    pass
+
+	fitbitauthfile = Path("./auth/fitbit.json")
+	googleauthfile = Path("./auth/google.json")
+	# if auth/fitbit.json doesn't exist
+	if fitbitauthfile.is_file() == False:
+		#send to fitbit's site for authentication
+		print("""\n===========================================================================\n===========================================================================\n\nGo to this site and register a new Fitbit app\n https://dev.fitbit.com/apps/new \n\n\nApplication Name :              --Choose a name--\nDescription :                   --Choose a description--\nApplication Website :           --Your website--\nOrganization :                  --Choose an organization--\nOrganization Website :          --Your website--\nOAuth 2.0 Application Type :    **Must choose 'Personal'**\nCallback URL :                  http://localhost:8080/ \nDefault Access Type :           Read-Only\n\nNote :\n1. Use your own information for fields marked --\n2. Make sure you copy the Callback URL exactly (including the last /)\n3. Application Type MUST be Personal\n\nMake a note of your 'OAuth 2.0 Client ID' and 'Client Secret'\n===========================================================================\n===========================================================================\n""")
+		sleep(2)
+		# prompt if on headless or browser
+		isbrowser = helpers.get_bool("Does this system have a native display and a browser?")
+		fitbitclientid = input("What's your Fitbit Client ID? ")
+		fitbitclientsecret = input("What's your Fitbit Client Secret? ")
+		# run auth/auth_fitbit.py
+		if isbrowser == True:
+			auth_fitbit.main("-i " + fitbitclientid + " -s " + fitbitclientsecret)
+		else
+			auth_fitbit.main("-i " + fitbitclientid + " -s " + fitbitclientsecret + " --console")
+	# if auth/google.json doesn't exist
+	if googleauthfile.is_file() == False:
+		print("""\n\n===========================================================================\n===========================================================================\n\nGo to https://console.developers.google.com/flows/enableapi?apiid=fitness\n\n1. Click 'Continue'. Then select 'Go to credentials' and select 'Client ID'.\n2. Under 'Application type', select 'Other' and hit 'Create'.\n3. Make a note of 'Client ID' and 'Client Secret'\n\n===========================================================================\n===========================================================================\n""")
+		sleep(2)
+		# check if already asked for headless or browser
+		try:
+			isbrowser
+		except NameError:
+			isbrowser = helpers.get_bool("Does this system have a native display and a browser?")
+		googleclientid = input("What's your Google Client ID? ")
+		googleclientsecret = input("What's your Google Client Secret? ")
+		# run auth/auth_google.py
+		if isbrowser == True:
+			auth_google.main("-i " + googleclientid + " -s " + googleclientsecret)
+		else
+			auth_google.main("-i " + googleclientid + " -s " + googleclientsecret + " --console")
+
 
 	# Reading configuration from config file
 	config = configparser.ConfigParser()
