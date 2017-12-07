@@ -26,7 +26,7 @@ class Helper(object):
 	def GetFitbitClient(self):
 		"""Returns an authenticated fitbit client object"""
 		logging.debug("Creating Fitbit client")
-		credentials = json.load(open(self.fitbitCredsFile))  
+		credentials = json.load(open(self.fitbitCredsFile))
 		client = fitbit.Fitbit(**credentials)
 		logging.debug("Fitbit client created")
 		return client
@@ -45,7 +45,15 @@ class Helper(object):
 
 		fitbitClient -- fitbit client object that contains the latest credentials
 		"""
-		credentials = json.load(open(self.fitbitCredsFile)) 
+		credentials = json.load(open(self.fitbitCredsFile))
 		for t in ('access_token', 'refresh_token'):
 			credentials[t] = fitbitClient.client.token[t]
 		json.dump(credentials, open(self.fitbitCredsFile, 'w'))
+
+	def get_bool(prompt):
+		"""Prompts for user input that must be either yes or no"""
+		while True:
+			try:
+				return{"yes":True,"Yes":True,"YES":True,"true":True,"True":True,"TRUE":True,"no":False,"No":False,"NO":False,"false":False,"False":False,"FALSE":False}[input(prompt).lower()]
+			except KeyError:
+				print("Invalid input. Please enter either yes or no.")
