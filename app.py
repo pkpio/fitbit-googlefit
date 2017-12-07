@@ -82,13 +82,13 @@ def main():
 		print("""\n===========================================================================\n===========================================================================\n\nGo to this site and register a new Fitbit app\n https://dev.fitbit.com/apps/new \n\n\nApplication Name :              --Choose a name--\nDescription :                   --Choose a description--\nApplication Website :           --Your website--\nOrganization :                  --Choose an organization--\nOrganization Website :          --Your website--\nOAuth 2.0 Application Type :    **Must choose 'Personal'**\nCallback URL :                  http://localhost:8080/ \nDefault Access Type :           Read-Only\n\nNote :\n1. Use your own information for fields marked --\n2. Make sure you copy the Callback URL exactly (including the last /)\n3. Application Type MUST be Personal\n\nMake a note of your 'OAuth 2.0 Client ID' and 'Client Secret'\n===========================================================================\n===========================================================================\n""")
 		sleep(2)
 		# prompt if on headless or browser
-		isbrowser = helpers.get_bool("Does this system have a native display and a browser?")
+		isbrowser = get_bool("Does this system have a native display and a browser?")
 		fitbitclientid = input("What's your Fitbit Client ID? ")
 		fitbitclientsecret = input("What's your Fitbit Client Secret? ")
 		# run auth/auth_fitbit.py
 		if isbrowser == True:
 			auth_fitbit.main("-i " + fitbitclientid + " -s " + fitbitclientsecret)
-		else
+		else:
 			auth_fitbit.main("-i " + fitbitclientid + " -s " + fitbitclientsecret + " --console")
 	# if auth/google.json doesn't exist
 	if googleauthfile.is_file() == False:
@@ -98,13 +98,13 @@ def main():
 		try:
 			isbrowser
 		except NameError:
-			isbrowser = helpers.get_bool("Does this system have a native display and a browser?")
+			isbrowser = get_bool("Does this system have a native display and a browser?")
 		googleclientid = input("What's your Google Client ID? ")
 		googleclientsecret = input("What's your Google Client Secret? ")
 		# run auth/auth_google.py
 		if isbrowser == True:
 			auth_google.main("-i " + googleclientid + " -s " + googleclientsecret)
-		else
+		else:
 			auth_google.main("-i " + googleclientid + " -s " + googleclientsecret + " --console")
 
 
@@ -172,6 +172,14 @@ def main():
 	#----------------------------------  activity logs  ------------------------
 	if params.getboolean('sync_activities'):
 		remote.SyncFitbitActivitiesToGoogleFit(start_date=start_date)
+
+def get_bool(prompt):
+	"""Prompts for user input that must be either yes or no"""
+	while True:
+		try:
+			return{"yes":True,"Yes":True,"YES":True,"true":True,"True":True,"TRUE":True,"no":False,"No":False,"NO":False,"false":False,"False":False,"FALSE":False}[input(prompt).lower()]
+		except KeyError:
+			print("Invalid input. Please enter either yes or no.")
 
 if __name__ == '__main__':
 	try:
