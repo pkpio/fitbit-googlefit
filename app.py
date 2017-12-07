@@ -7,13 +7,15 @@ __email__ = "mail@pkp.io"
 """
 from pathlib import Path
 from shutil import copyfile,which
-import os
+import os,sys
 
 fitbitenvloc = Path("./fitbitenv")
+activate_this = "./fitbitenv/bin/activate_this.py"
 if fitbitenvloc.is_dir() == True:
-	os.system(". ./fitbitenv/bin/activate")
+	exec(compile(open(activate_this).read(), activate_this, 'exec'), dict(__file__=activate_this))
 else:
 	os.system("virtualenv --python=python3 fitbitenv && . ./fitbitenv/bin/activate && pip3 install -r ./requirements.txt")
+	exec(compile(open(activate_this).read(), activate_this, 'exec'), dict(__file__=activate_this))
 
 
 import time,argparse,logging,datetime,dateutil.parser,configparser,json,subprocess
@@ -96,9 +98,9 @@ def main():
 		fitbitclientsecret = input("What's your Fitbit Client Secret? ")
 		# run auth/auth_fitbit.py
 		if isbrowser == True:
-			subprocess.call("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret)
+			subprocess.run("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret, shell=True)
 		else:
-			subprocess.call("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret + " --console")
+			subprocess.run("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret + " --console", shell=True)
 	# if auth/google.json doesn't exist
 	if googleauthfile.is_file() == False:
 		print("""\n\n===========================================================================\n===========================================================================\n\nGo to https://console.developers.google.com/flows/enableapi?apiid=fitness\n\n1. Click 'Continue'. Then select 'Go to credentials' and select 'Client ID'.\n2. Under 'Application type', select 'Other' and hit 'Create'.\n3. Make a note of 'Client ID' and 'Client Secret'\n\n===========================================================================\n===========================================================================\n""")
@@ -112,9 +114,9 @@ def main():
 		googleclientsecret = input("What's your Google Client Secret? ")
 		# run auth/auth_google.py
 		if isbrowser == True:
-			subprocess.call("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret)
+			subprocess.run("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret, shell=True)
 		else:
-			subprocess.call("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret + " --console")
+			subprocess.run("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret + " --console", shell=True)
 
 
 	# Reading configuration from config file
