@@ -56,9 +56,9 @@ App.py will now create a virtualenv called fitbitenv, source this new virtualenv
 
 2. Edit your config.ini
 -------------------
-App.py will copy ```config.template.ini``` to ```config.ini``` and attempt to open it using either ```$EDITOR```, nano, vim, or vi. If none of those are installed.
+App.py will copy ```config.template.ini``` to ```config.ini``` and attempt to open it using either ```$EDITOR```, nano, vim, or vi.
 
-You will get a chance to press Ctrl+c to stop the script so you can edit ```config.ini```. run ```python app.py``` again after you have edited ```config.ini```, ONLY if you had to press Ctrl+c to manually edit it.
+If none of those are installed, you will get a chance to press Ctrl+c to stop the script so you can edit ```config.ini```. run ```python app.py``` again after you have edited ```config.ini```, ONLY if you had to press Ctrl+c to manually edit it.
 
 Feel free to change any settings in ```config.ini```, and if you mess it up beyond all recognition, just run ```cp -f config.template.ini config.ini``` from the ```fitbit-googlefit``` directory.
 
