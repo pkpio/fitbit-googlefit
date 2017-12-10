@@ -94,8 +94,8 @@ def main():
 		sleep(2)
 		# prompt if on headless or browser
 		isbrowser = get_bool("Does this system have a native display and a browser? ")
-		fitbitclientid = input("What's your Fitbit Client ID? ")
-		fitbitclientsecret = input("What's your Fitbit Client Secret? ")
+		fitbitclientid = input("What's your Fitbit Client ID? ").strip()
+		fitbitclientsecret = input("What's your Fitbit Client Secret? ").strip()
 		# call auth/auth_fitbit.py
 		if isbrowser == True:
 			subprocess.call(["./auth_fitbit.py", "-i", fitbitclientid, "-s", fitbitclientsecret], cwd="./auth")
@@ -110,8 +110,8 @@ def main():
 			isbrowser
 		except NameError:
 			isbrowser = get_bool("Does this system have a native display and a browser? ")
-		googleclientid = input("What's your Google Client ID? ")
-		googleclientsecret = input("What's your Google Client Secret? ")
+		googleclientid = input("What's your Google Client ID? ").strip()
+		googleclientsecret = input("What's your Google Client Secret? ").strip()
 		# call auth/auth_google.py
 		if isbrowser == True:
 			subprocess.call(["./auth_google.py", "-i", googleclientid, "-s", googleclientsecret], cwd="./auth")
