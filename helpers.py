@@ -26,7 +26,7 @@ class Helper(object):
 	def GetFitbitClient(self):
 		"""Returns an authenticated fitbit client object"""
 		logging.debug("Creating Fitbit client")
-		credentials = json.load(open(self.fitbitCredsFile))  
+		credentials = json.load(open(self.fitbitCredsFile))
 		client = fitbit.Fitbit(**credentials)
 		logging.debug("Fitbit client created")
 		return client
@@ -45,7 +45,7 @@ class Helper(object):
 
 		fitbitClient -- fitbit client object that contains the latest credentials
 		"""
-		credentials = json.load(open(self.fitbitCredsFile)) 
+		credentials = json.load(open(self.fitbitCredsFile))
 		for t in ('access_token', 'refresh_token'):
 			credentials[t] = fitbitClient.client.token[t]
 		json.dump(credentials, open(self.fitbitCredsFile, 'w'))

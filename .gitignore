@@ -94,3 +94,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# custom config
+config.ini
+
+#virtualenv
+fitbitenv/
+test.py
