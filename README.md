@@ -17,7 +17,7 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
 - [x] Heart rate - second level precision
 - [x] Weight
 - [x] Body fat percentage
-- [x] Activities 
+- [x] Activities
   - [x] Running
   - [x] Swimming
   - [x] Biking
@@ -44,11 +44,11 @@ You have to register your own Fitbit and Google Fit applications. This setup is 
 
 1. Run App.py
 -------------------
-This is a python3 application so install all the dependencies 
+This is a python3 application so install all the dependencies
 
-- Make sure you have Python 3.5 or higher installed ```sudo apt update && sudo apt install python3```
+- Make sure you have Python or higher installed ```sudo apt update && sudo apt install python3```
 - Make sure you have Virtualenv installed ```sudo apt install virtualenv```
-- Clone the repository and cd into it (cd where you want it saved at first) ```git clone https://github.com/praveendath92/fitbit-googlefit.git && cd ./fitbit-googlefit```
+- Clone the repository using the link green `Clone or Download` at the top and cd into it (cd where you want it saved at first) ```git clone ***link***``` and ```cd ./fitbit-googlefit```
 - Run app.py ```python3 app.py```
 
 App.py will now create a virtualenv called fitbitenv, source this new virtualenv, and use pip3 to install its necessary dependencies.
@@ -139,7 +139,7 @@ Add above line to your cron tab: ```crontab -e``` in Linux. Sync logs will be st
 ----------------------------
 This program fully supports running headless on a remote server, Raspberry Pi, Digitalocean, etc. Simply answer ```no``` when asked during set if your computer has a native display and browser. Assuming you are SSHed into the remote server, just copy the supplied URLs and paste them into your local browser, and then copy the Redirect URL (Fitbit) and Authentication Code (Google) back into the program.
 
-Note : 
+Note :
 -------
-1. Get command line help using the ```-h``` flag. 
+1. Get command line help using the ```-h``` flag.
 2. Arguments passed through command-line take higher priority over ```config.ini``` values.

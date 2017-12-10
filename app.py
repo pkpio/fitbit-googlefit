@@ -96,11 +96,11 @@ def main():
 		isbrowser = get_bool("Does this system have a native display and a browser? ")
 		fitbitclientid = input("What's your Fitbit Client ID? ")
 		fitbitclientsecret = input("What's your Fitbit Client Secret? ")
-		# run auth/auth_fitbit.py
+		# call auth/auth_fitbit.py
 		if isbrowser == True:
-			subprocess.run("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret, shell=True)
+			subprocess.call(["./auth_fitbit.py", "-i", fitbitclientid, "-s", fitbitclientsecret], cwd="./auth")
 		else:
-			subprocess.run("cd ./auth && ./auth_fitbit.py -i " + fitbitclientid + " -s " + fitbitclientsecret + " --console", shell=True)
+			subprocess.call(["./auth_fitbit.py", "-i", fitbitclientid, "-s", fitbitclientsecret, "--console"], cwd="./auth")
 	# if auth/google.json doesn't exist
 	if googleauthfile.is_file() == False:
 		print("""\n\n===========================================================================\n===========================================================================\n\nGo to https://console.developers.google.com/flows/enableapi?apiid=fitness\n\n1. Click 'Continue'. Then select 'Go to credentials' and select 'Client ID'.\n2. Under 'Application type', select 'Other' and hit 'Create'.\n3. Make a note of 'Client ID' and 'Client Secret'\n\n===========================================================================\n===========================================================================\n""")
@@ -112,11 +112,11 @@ def main():
 			isbrowser = get_bool("Does this system have a native display and a browser? ")
 		googleclientid = input("What's your Google Client ID? ")
 		googleclientsecret = input("What's your Google Client Secret? ")
-		# run auth/auth_google.py
+		# call auth/auth_google.py
 		if isbrowser == True:
-			subprocess.run("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret, shell=True)
+			subprocess.call(["./auth_google.py", "-i", googleclientid, "-s", googleclientsecret], cwd="./auth")
 		else:
-			subprocess.run("cd ./auth && ./auth_google.py -i " + googleclientid + " -s " + googleclientsecret + " --console", shell=True)
+			subprocess.call(["./auth_google.py", "-i", googleclientid, "-s", googleclientsecret, "--console"], cwd="./auth")
 
 
 	# Reading configuration from config file
