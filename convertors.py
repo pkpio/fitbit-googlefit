@@ -347,11 +347,9 @@ class Convertor:
 		dataType -- type of data. Possible options: steps, weight, heart_rate
 		"""
 		dataSource = self.GetDataSource(dataType)
-		projectNumber = Storage(self.googleCredsFile).get().client_id.split('-')[0]
 		return ':'.join((
 			dataSource['type'],
 			dataSource['dataType']['name'],
-			projectNumber,
 			dataSource['device']['manufacturer'],
 			dataSource['device']['model'],
 			dataSource['device']['uid']))
