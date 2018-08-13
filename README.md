@@ -32,11 +32,13 @@ Unlike other alternatives, such as fitnessyncer.com, this aims to offer very fin
   - [x] And a [few others][activities] -- suggestions welcome!
 - [x] Calories - minute level precision
 - [x] Sleep logs - minute level precision
-- [ ] Floors - minute level precision
-- [ ] Elevation - minute level precision
-- [ ] Food logs
 
-[activities]:https://github.com/praveendath92/fitbit-googlefit/blob/master/convertors.py#L201-L241
+Adding new activities
+---------------------
+To add new activities
+- Check the Fitbit activity name (example: `Tennis`)
+- Find the corresponding [Google Fit activity id here](https://developers.google.com/fit/rest/v1/reference/activity-types) (in our example, `87`).
+- Add this mapping in [`convertors.py`](https://github.com/praveendath92/fitbit-googlefit/blob/master/convertors.py#L268)
 
 # Setup
 ----------------------------
