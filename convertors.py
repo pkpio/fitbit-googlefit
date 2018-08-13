@@ -291,6 +291,8 @@ class Convertor:
 			activityType = 24
 		elif activity['activityName'] in ('Ultimate frisbee', 'Frisbee'):
 			activityType = 30
+		elif activity['activityName'] in ('Spinning'):
+			activityType = 103
 		else:
 			activityType = 4 # Unknown activity
 
