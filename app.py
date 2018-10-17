@@ -46,7 +46,7 @@ def main():
 
 	# Init objects
 	helper = Helper(args.fitbit_creds, args.google_creds)
-	convertor = Convertor(args.google_creds, None)
+	convertor = Convertor(args.google_creds, params.get('project_number'), None)
 	fitbitClient,googleClient = helper.GetFitbitClient(),helper.GetGoogleClient()
 	remote = Remote(fitbitClient, googleClient, convertor, helper)
 

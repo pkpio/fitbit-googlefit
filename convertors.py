@@ -19,13 +19,14 @@ class Convertor:
 	POUNDS_PER_KILOGRAM = 2.20462
 	METERS_PER_MILE = 1609.34
 
-	def __init__(self, googleCredsFile, tzinfo):
+	def __init__(self, googleCredsFile, googleDeveloperProjectNumber, tzinfo):
 		""" Intialize a convertor object.
 
 		googleCredsFile -- Google Fits credentials file
 		tzinfo -- Timezone information of the Fitbit user
 		"""
 		self.googleCredsFile = googleCredsFile
+		self.googleDeveloperProjectNumber = googleDeveloperProjectNumber
 		self.tzinfo = tzinfo
 
 	def UpdateTimezone(self, tzinfo):
@@ -349,9 +350,13 @@ class Convertor:
 		dataType -- type of data. Possible options: steps, weight, heart_rate
 		"""
 		dataSource = self.GetDataSource(dataType)
+		#DataSourceId format
+		#type:dataType.name:developer-project-number:device.manufacturer:device.model:device.uid:dataStreamName
+		#reference https://developers.google.com/fit/rest/v1/reference/users/dataSources
 		return ':'.join((
 			dataSource['type'],
 			dataSource['dataType']['name'],
+			self.googleDeveloperProjectNumber,
 			dataSource['device']['manufacturer'],
 			dataSource['device']['model'],
 			dataSource['device']['uid']))

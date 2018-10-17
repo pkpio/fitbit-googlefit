@@ -94,7 +94,11 @@ Note :
 
 # Usage
 ----------------------------
-Update the ```config.ini``` with own choices and start the sync using ```python3 app.py```
+Get your Google Developer Project Number (a 12 digit number) from a the [Google Developers Console](https://console.developers.google.com/iam-admin/settings)
+
+Update ```project_number``` in ```config.ini``` to be your Google Developer Project Number.
+
+Modify any other variables you'd like in ```config.ini``` with your own choices and start the sync using ```python3 app.py```
 
 Sync examples:
 --------------
