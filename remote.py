@@ -88,7 +88,7 @@ class Remote:
 						dataSourceId=dataSourceId,
 						maxEndTimeNs=maxLogNs,
 						minStartTimeNs=minLogNs,
-						point=data_points)
+						point=data_points.reverse())
 					).execute()
 			except BrokenPipeError as e:
 				# Re-create the googleClient since the last one is broken
