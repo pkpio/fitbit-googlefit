@@ -20,7 +20,8 @@ from oauth2client.client import OAuth2Credentials
 from googleapiclient.errors import HttpError
 
 from random import randint
-from app import DATE_FORMAT
+
+DATE_FORMAT = "%Y-%m-%d"
 
 class Remote:
 	"""Methods for remote api calls and synchronization from Fitbit to Google Fit"""
