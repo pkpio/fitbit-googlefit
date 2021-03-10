@@ -27,7 +27,7 @@ class Remote:
 	"""Methods for remote api calls and synchronization from Fitbit to Google Fit"""
 	
 	FITBIT_API_URL = 'https://api.fitbit.com/1'
-	GFIT_MAX_POINTS_PER_UPDATE = 2000 # Max number of data points that can be sent in a single update request
+	GFIT_MAX_POINTS_PER_UPDATE = 8000 # Max number of data points that can be sent in a single update request
 
 	def __init__(self, fitbitClient, googleClient, convertor, helper):
 		""" Intialize a remote object.
