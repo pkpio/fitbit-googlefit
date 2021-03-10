@@ -74,8 +74,8 @@ class Remote:
 		# max and min timestamps of any data point we will be adding to googlefit - required by gfit API.
 		if len(data_points) == 0:
 			return
-		minLogNs = min([point['startTimeNanos'] for point in data_points])
-		maxLogNs = max([point['endTimeNanos'] for point in data_points])
+		minLogNs = min(point['startTimeNanos'] for point in data_points)
+		maxLogNs = max(point['endTimeNanos'] for point in data_points)
 		datasetId = '%s-%s' % (minLogNs, maxLogNs)
 
 		if len(data_points) < self.GFIT_MAX_POINTS_PER_UPDATE:
@@ -183,10 +183,13 @@ class Remote:
 
 		# convert all fitbit data points to google fit data points
 		googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,dataType) for point in intraday_data]
+		nonZeroPoints = [
+			point for point in googlePoints if not all(
+				('intVal' in v and v['intVal'] == 0) or ('fpVal' in v and v['fpVal'] == 0) for v in point['value'])]
 
 		# Write a day of fitbit data to Google fit
-		self.WriteToGoogleFit(dataSourceId, googlePoints)
-		print("synced {} - {} data points".format(dataType,len(googlePoints)) )
+		self.WriteToGoogleFit(dataSourceId, nonZeroPoints)
+		print("synced {} - {}/{} data points".format(dataType,len(nonZeroPoints),len(googlePoints)) )
 
 	def SyncFitbitLogToGoogleFit(self, dataType, date_stamp):
 		"""
