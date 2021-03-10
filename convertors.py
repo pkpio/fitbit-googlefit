@@ -20,7 +20,7 @@ class Convertor:
 	METERS_PER_MILE = 1609.34
 	NANOS_PER_MINUTE=1000*1000*1000*60
 
-	def __init__(self, googleCredsFile, googleDeveloperProjectNumber, tzinfo):
+	def __init__(self, googleCredsFile, googleDeveloperProjectNumber, tzinfo, weighTime):
 		""" Intialize a convertor object.
 
 		googleCredsFile -- Google Fits credentials file
@@ -29,6 +29,7 @@ class Convertor:
 		self.googleCredsFile = googleCredsFile
 		self.googleDeveloperProjectNumber = googleDeveloperProjectNumber
 		self.tzinfo = tzinfo
+		self.weighTime = weighTime
 
 	def UpdateTimezone(self, tzinfo):
 		"""Update user's timezone info"""
@@ -166,7 +167,7 @@ class Convertor:
 		date -- date to which the data_point belongs to in "yyyy-mm-dd" format
 		data_point -- a single Fitbit intraday weight log data point
 		"""
-		timestamp = "{} {}".format(date, data_point['time'])
+		timestamp = "{} {}".format(date, self.weighTime)
 		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
 		googleWeight = data_point['weight'] / self.POUNDS_PER_KILOGRAM
 

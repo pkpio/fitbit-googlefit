@@ -5,22 +5,19 @@ Main class / entry point for the application
 __author__ = "Praveen Kumar Pendyala"
 __email__ = "mail@pkp.io"
 """
-import time
 import argparse
 import logging
-import datetime
 import dateutil.parser
 import configparser
 import json
-from datetime import timedelta, date
+from datetime import time
 
-from helpers import *
-from convertors import *
-from remote import *
+from helpers import Helper
+from convertors import Convertor
+from remote import DATE_FORMAT, Remote
 from sys import exit
 
 VERSION = "0.3"
-DATE_FORMAT = "%Y-%m-%d"
 
 def main():
 	# Arguments parsing
@@ -46,7 +43,8 @@ def main():
 
 	# Init objects
 	helper = Helper(args.fitbit_creds, args.google_creds)
-	convertor = Convertor(args.google_creds, params.get('project_number'), None)
+	weighTime = time.fromisoformat(params.get('weigh_time'))
+	convertor = Convertor(args.google_creds, params.get('project_number'), None, weighTime)
 	fitbitClient,googleClient = helper.GetFitbitClient(),helper.GetGoogleClient()
 	remote = Remote(fitbitClient, googleClient, convertor, helper)
 
