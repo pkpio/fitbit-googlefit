@@ -18,7 +18,8 @@ class Convertor:
 	# Unit conversion constants
 	POUNDS_PER_KILOGRAM = 2.20462
 	METERS_PER_MILE = 1609.34
-	NANOS_PER_MINUTE=1000*1000*1000*60
+	NANOS_PER_SECOND = 1000*1000*1000
+	NANOS_PER_MINUTE = NANOS_PER_SECOND*60
 
 	def __init__(self, googleCredsFile, googleDeveloperProjectNumber, tzinfo, weighTime):
 		""" Intialize a convertor object.
@@ -200,23 +201,26 @@ class Convertor:
 		date -- date to which the data_point belongs to in "yyyy-mm-dd" format
 		data_point -- a single Fitbit intraday step data point
 		"""
-		timestamp = "{} {}".format(date, data_point['dateTime'])
+		timestamp = data_point['dateTime']
 		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
 
 		# Convert sleep data point to google fit sleep types
-		if data_point['value'] == 1:
-			sleepType = 72
-		elif data_point['value'] == 2:
+		level = data_point['level']
+		if level == 'light':
 			sleepType = 109
-		elif data_point['value'] == 3:
+		elif level == 'deep':
+			sleepType = 110
+		elif level == 'rem':
+			sleepType = 111
+		elif level == 'wake':
 			sleepType = 112
 		else:
-			sleepType = 72
+			raise AssertionError(f'unrecognised value for point {data_point}')
 
 		return dict(
 			dataTypeName='com.google.activity.segment',
 			startTimeNanos=epoch_time_nanos,
-			endTimeNanos=epoch_time_nanos + self.NANOS_PER_MINUTE,
+			endTimeNanos=epoch_time_nanos + (data_point['seconds'] * self.NANOS_PER_SECOND),
 			value=[dict(intVal=sleepType)]
 			)
 

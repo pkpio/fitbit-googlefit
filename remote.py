@@ -232,17 +232,11 @@ class Remote:
 		# Iterate over each sleep log for that day
 		sleep_count = 0
 		for fit_sleep in fitbitSleeps:
-			minute_points = fit_sleep['minuteData']
+			minute_points = fit_sleep['levels']['data']
 			sleep_count += 1
 
-			# save first time stamp for comparison
-			start_time = minute_points[0]['dateTime']
-			# convert to date, add 1 day, convert back to string
-			next_date_stamp = (datetime.strptime(date_stamp, DATE_FORMAT) + timedelta(1)).strftime(DATE_FORMAT)
-
 			# convert all fitbit data points to google fit data points
-			googlePoints = [self.convertor.ConvertFibitPoint((date_stamp if start_time <= point['dateTime'] else \
-				next_date_stamp),point,'sleep') for point in minute_points]
+			googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,'sleep') for point in minute_points]
 
 			# 1. Write a fit session about sleep
 			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, fit_sleep['logId'])
