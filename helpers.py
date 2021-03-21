@@ -26,8 +26,12 @@ class Helper(object):
 	def GetFitbitClient(self):
 		"""Returns an authenticated fitbit client object"""
 		logging.debug("Creating Fitbit client")
-		credentials = json.load(open(self.fitbitCredsFile))  
+		credentials = json.load(open(self.fitbitCredsFile))
 		client = fitbit.Fitbit(**credentials)
+
+		# Use v1.2 sleep API: https://github.com/orcasgit/python-fitbit/issues/128
+		client.API_VERSION = 1.2
+
 		logging.debug("Fitbit client created")
 		return client
 
