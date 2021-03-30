@@ -340,23 +340,23 @@ class Convertor:
 		# Do NOT change these after the first sync!
 		model,device_type = 'charge-hr', 'watch'
 		if type == 'steps':
-			dataType=dict(name='com.google.step_count.delta',field=[dict(name='steps',format='integer')])
+			dataType=dict(name='com.google.step_count.delta')
 		elif type == 'distance':
-			dataType=dict(name='com.google.distance.delta',field=[dict(name='distance',format='floatPoint')])
+			dataType=dict(name='com.google.distance.delta')
 		elif type == 'weight':
-			dataType=dict(name='com.google.weight',field=[dict(name='weight',format='floatPoint')])
+			dataType=dict(name='com.google.weight')
 			model,device_type='aria','scale' # weighing machine
 		elif type == 'body_fat':
-			dataType=dict(name='com.google.body.fat.percentage',field=[dict(name='percentage',format='floatPoint')])
+			dataType=dict(name='com.google.body.fat.percentage')
 			model,device_type='aria','scale' # weighing machine
 		elif type == 'heart_rate':
-			dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
+			dataType=dict(name='com.google.heart_rate.bpm')
 		elif type == 'calories':
-			dataType=dict(name='com.google.calories.expended',field=[dict(name='calories',format='floatPoint')])
+			dataType=dict(name='com.google.calories.expended')
 		elif type == 'activity':
-			dataType=dict(name='com.google.activity.segment',field=[dict(name='activity',format='integer')])
+			dataType=dict(name='com.google.activity.segment')
 		elif type == 'sleep':
-			dataType=dict(name='com.google.sleep.segment',field=[dict(name='sleep_segment_type',format='integer')])
+			dataType=dict(name='com.google.sleep.segment')
 		else:
 			raise ValueError("Unexpected data type given!")
 
