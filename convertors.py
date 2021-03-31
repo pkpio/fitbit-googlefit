@@ -205,20 +205,22 @@ class Convertor:
 		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
 
 		# Convert sleep data point to google fit sleep types
+		# https://dev.fitbit.com/build/reference/web-api/sleep/
+		# https://developers.google.com/fit/datatypes/sleep
 		level = data_point['level']
 		if level == 'light':
-			sleepType = 109
+			sleepType = 4
 		elif level == 'deep':
-			sleepType = 110
+			sleepType = 5
 		elif level == 'rem':
-			sleepType = 111
+			sleepType = 6
 		elif level == 'wake':
-			sleepType = 112
+			sleepType = 1
 		else:
 			raise AssertionError(f'unrecognised value for point {data_point}')
 
 		return dict(
-			dataTypeName='com.google.activity.segment',
+			dataTypeName='com.google.sleep.segment',
 			startTimeNanos=epoch_time_nanos,
 			endTimeNanos=epoch_time_nanos + (data_point['seconds'] * self.NANOS_PER_SECOND),
 			value=[dict(intVal=sleepType)]
@@ -338,8 +340,10 @@ class Convertor:
 			dataType=dict(name='com.google.heart_rate.bpm',field=[dict(name='bpm',format='floatPoint')])
 		elif type == 'calories':
 			dataType=dict(name='com.google.calories.expended',field=[dict(name='calories',format='floatPoint')])
-		elif type in ('activity','sleep'):
+		elif type == 'activity':
 			dataType=dict(name='com.google.activity.segment',field=[dict(name='activity',format='integer')])
+		elif type == 'sleep':
+			dataType=dict(name='com.google.sleep.segment',field=[dict(name='sleep_segment_type',format='integer')])
 		else:
 			raise ValueError("Unexpected data type given!")
 

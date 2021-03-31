@@ -10,17 +10,16 @@ def main():
     # Arguments parsing
     parser = argparse.ArgumentParser("Client ID and Secret are mandatory arguments")
     parser.add_argument("-i", "--id", required=True, help="Client id", metavar='<client-id>')
-    parser.add_argument("-s", "--secret", required=True, help="Client secret", 
+    parser.add_argument("-s", "--secret", required=True, help="Client secret",
         metavar='<client-secret>')
-    parser.add_argument("-c", "--console", default=False, 
+    parser.add_argument("-c", "--console", default=False,
         help="Authenticate only using console (for headless systems)", action="store_true")
     args = parser.parse_args()
 
     # Scopes of authorization
-    activity = "https://www.googleapis.com/auth/fitness.activity.write"
-    body = "https://www.googleapis.com/auth/fitness.body.write"
-    location = "https://www.googleapis.com/auth/fitness.location.write"
-    scopes = activity + " " + body + " " + location
+    scopes = " ".join(
+        f'https://www.googleapis.com/auth/fitness.{scope}.write' for scope in
+        ["activity", "body", "location", "heart_rate", "sleep"])
 
     flow = OAuth2WebServerFlow(args.id, args.secret, scopes)
     storage = Storage('google.json')
