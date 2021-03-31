@@ -9,6 +9,7 @@ import time
 import dateutil.parser
 import json
 from datetime import timedelta, date
+from decimal import Decimal
 from oauth2client.file import Storage
 import parsedatetime as pdt
 
@@ -16,7 +17,7 @@ class Convertor:
 	"""Methods for data type conversions. All fitbit conversion methods convert to google fit compatible data types"""
 
 	# Unit conversion constants
-	POUNDS_PER_KILOGRAM = 2.20462
+	POUNDS_PER_KILOGRAM = Decimal('2.20462')
 	METERS_PER_MILE = 1609.34
 	NANOS_PER_SECOND = 1000*1000*1000
 	NANOS_PER_MINUTE = NANOS_PER_SECOND*60
@@ -172,13 +173,14 @@ class Convertor:
 		"""
 		timestamp = "{} {}".format(date, self.weighTime)
 		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
-		googleWeight = data_point['weight'] / self.POUNDS_PER_KILOGRAM
+		googleWeight = (Decimal(data_point['weight']) / self.POUNDS_PER_KILOGRAM
+			).quantize(Decimal('.1'))
 
 		return dict(
 			dataTypeName='com.google.weight',
 			startTimeNanos=epoch_time_nanos,
 			endTimeNanos=epoch_time_nanos,
-			value=[dict(fpVal=googleWeight)]
+			value=[dict(fpVal=float(googleWeight))]
 			)
 
 	def ConvertFibitBodyfatPoint(self, date, data_point):
