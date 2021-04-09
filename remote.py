@@ -139,9 +139,6 @@ class Remote:
 		dataType -- fitbit data type to sync
 		date_stamp -- timestamp in yyyy-mm-dd format of the day to sync
 		"""
-		# Persist current credentials. Incase the request fails.
-		self.helper.UpdateFitbitCredentials(self.fitbitClient)
-
 		if dataType in ('steps','distance','heart_rate','calories'):
 			return self.SyncFitbitIntradayToGoogleFit(dataType, date_stamp)
 		elif dataType in ('weight','body_fat'):
