@@ -27,7 +27,9 @@ class Helper(object):
 		"""Returns an authenticated fitbit client object"""
 		logging.debug("Creating Fitbit client")
 		credentials = json.load(open(self.fitbitCredsFile))
-		client = fitbit.Fitbit(**credentials)
+		client = fitbit.Fitbit(
+			refresh_cb = lambda token: self.UpdateFitbitCredentials(token),
+			**credentials)
 
 		# Use v1.2 sleep API: https://github.com/orcasgit/python-fitbit/issues/128
 		client.API_VERSION = 1.2
@@ -44,12 +46,13 @@ class Helper(object):
 		logging.debug("Google client created")
 		return client
 
-	def UpdateFitbitCredentials(self, fitbitClient):
+	def UpdateFitbitCredentials(self, token):
 		"""Persists new fitbit credentials to local storage
 
 		fitbitClient -- fitbit client object that contains the latest credentials
 		"""
-		credentials = json.load(open(self.fitbitCredsFile)) 
+		logging.debug("Refreshed Fitbit token")
+		credentials = json.load(open(self.fitbitCredsFile))
 		for t in ('access_token', 'refresh_token'):
-			credentials[t] = fitbitClient.client.session.token[t]
+			credentials[t] = token[t]
 		json.dump(credentials, open(self.fitbitCredsFile, 'w'))
