@@ -208,14 +208,18 @@ class Convertor:
 		# https://dev.fitbit.com/build/reference/web-api/sleep/
 		# https://developers.google.com/fit/datatypes/sleep
 		level = data_point['level']
-		if level == 'light':
+		if level == 'restless':
+			sleepType = 0
+		elif level == 'wake' or level == 'awake':
+			sleepType = 1
+		elif level == 'asleep':
+			sleepType = 2
+		elif level == 'light':
 			sleepType = 4
 		elif level == 'deep':
 			sleepType = 5
 		elif level == 'rem':
 			sleepType = 6
-		elif level == 'wake':
-			sleepType = 1
 		else:
 			raise AssertionError(f'unrecognised value for point {data_point}')
 
