@@ -29,18 +29,24 @@ class Remote:
 	FITBIT_API_URL = 'https://api.fitbit.com/1'
 	GFIT_MAX_POINTS_PER_UPDATE = 8000 # Max number of data points that can be sent in a single update request
 
-	def __init__(self, fitbitClient, googleClient, convertor, helper):
+	def __init__(self, fitbitClient, googleClient, convertor, helper, tzinfo):
 		""" Intialize a remote object.
 		
 		fitbitClient -- authenticated fitbit client
 		googleClient -- authenticated google client
 		convertor -- a convertor object for type conversions
 		helper -- a helper object for fitbit credentials update
+		tzinfo -- Timezone information of the Fitbit user
 		"""
 		self.fitbitClient = fitbitClient
 		self.googleClient = googleClient
 		self.convertor = convertor
 		self.helper = helper
+		self.tzinfo = tzinfo
+
+	def UpdateTimezone(self, tzinfo):
+		"""Update user's timezone info"""
+		self.tzinfo = tzinfo
 
 	########################### Remote data read/write methods ############################
 
@@ -228,15 +234,23 @@ class Remote:
 
 		# Iterate over each sleep log for that day
 		sleep_count = 0
-		for fit_sleep in fitbitSleeps:
-			minute_points = fit_sleep['levels']['data']
+		for sleep in fitbitSleeps:
+			start = dateutil.parser.parse(sleep['startTime']).replace(tzinfo=self.tzinfo)
+			# When DST occurs during a sleep, Fitbit prints datetimes using the offset of the
+			# TZ at the start of the sleep...
+			offset = dateutil.tz.tzoffset(None, self.tzinfo.utcoffset(start))
+			minute_points = sleep['levels']['data']
 			sleep_count += 1
 
 			# convert all fitbit data points to google fit data points
-			googlePoints = [self.convertor.ConvertFibitPoint(date_stamp,point,'sleep') for point in minute_points]
+			googlePoints = [
+				gp
+				for point in minute_points
+				if (gp := self.convertor.ConvertFibitPoint(date_stamp, point, 'sleep', offset)) is not None
+			]
 
 			# 1. Write a fit session about sleep
-			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, fit_sleep['logId'])
+			google_session = self.convertor.ConvertGFitSleepSession(googlePoints, sleep['logId'])
 			self.WriteSessionToGoogleFit(google_session)
 
 			# 2. create activity segment data points for the activity
