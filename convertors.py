@@ -38,16 +38,17 @@ class Convertor:
 
 	#------------------------ General convertors ----------------------------
 
-	def EpochOfFitbitTimestamp(self, timestamp, tzincluded=False):
+	def EpochOfFitbitTimestamp(self, timestamp, *, tzincluded=False, tzinfo=None):
 		"""Returns a epoch time stamp (in milliseconds). Useful for converting fitbit timestamps to epoch values.
 
 		timestamp -- date-time stamp as a string "yyyy-mm-dd hh:mm:ss" (24-hour) or any other standard format
-		tzincluded -- is timezone included in the timestamp? Otherwise, timezone passed during convertor construction
-		will be used.
+		tzincluded -- is timezone included in the timestamp? Otherwise, tzinfo will be used.
+		tzinfo -- tzinfo to use if tzincluded is False, defaults to the timezone passed during construction
 		"""
 		dawnOfTime = datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc())
 		if not tzincluded:
-			logTime = dateutil.parser.parse(timestamp).replace(tzinfo=self.tzinfo)
+			logTime = dateutil.parser.parse(timestamp).replace(
+				tzinfo=tzinfo if tzinfo else self.tzinfo)
 		else:
 			logTime = dateutil.parser.parse(timestamp)
 		return int((logTime - dawnOfTime).total_seconds() * 1000)
@@ -73,12 +74,13 @@ class Convertor:
 
 	#------------------------ Fitbit to Google Fit convertors ----------------------------
 
-	def ConvertFibitPoint(self, date, data_point, dataType):
+	def ConvertFibitPoint(self, date, data_point, dataType, tzinfo=None):
 		"""Converts a single Fitbit data point of a given data type to Google fit data point
 
 		date -- date to which the data_point belongs to in "yyyy-mm-dd" format
 		data_point -- a single Fitbit intraday step data point
 		dataType -- data type of the point
+		tzinfo -- timezone to apply, where necessary, else the one passed during construction is used
 		"""
 		if dataType == 'steps':
 			return self.ConvertFibitStepsPoint(date, data_point)
@@ -93,7 +95,7 @@ class Convertor:
 		elif dataType == 'calories':
 			return self.ConvertFibitCaloriesPoint(date, data_point)
 		elif dataType == 'sleep':
-			return self.ConvertFibitSleepPoint(date, data_point)
+			return self.ConvertFibitSleepPoint(date, data_point, tzinfo)
 		else:
 			raise ValueError("Unexpected data type given!")
 
@@ -195,14 +197,16 @@ class Convertor:
 			value=[dict(fpVal=data_point['fat'])]
 			)
 
-	def ConvertFibitSleepPoint(self, date, data_point):
+	def ConvertFibitSleepPoint(self, date, data_point, tzinfo):
 		"""Converts a single Fitbit intraday distance data point to Google fit data point
 
 		date -- date to which the data_point belongs to in "yyyy-mm-dd" format
 		data_point -- a single Fitbit intraday step data point
+		tzinfo -- timezone to use
 		"""
 		timestamp = data_point['dateTime']
-		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp))
+		epoch_time_nanos = self.nano(self.EpochOfFitbitTimestamp(timestamp, tzinfo=tzinfo))
+		seconds = data_point["seconds"]
 
 		# Convert sleep data point to google fit sleep types
 		# https://dev.fitbit.com/build/reference/web-api/sleep/
@@ -220,13 +224,18 @@ class Convertor:
 			sleepType = 5
 		elif level == 'rem':
 			sleepType = 6
+		# Seems to be that when we enter DST during the sleep session, Fitbit
+		# shoves 1h of "unknown" at the end of the log to make up the end time...
+		elif level == 'unknown':
+			print(f"Skipping 'unknown' {seconds}s sleep point @ {timestamp}")
+			return None
 		else:
 			raise AssertionError(f'unrecognised value for point {data_point}')
 
 		return dict(
 			dataTypeName='com.google.sleep.segment',
 			startTimeNanos=epoch_time_nanos,
-			endTimeNanos=epoch_time_nanos + (data_point['seconds'] * self.NANOS_PER_SECOND),
+			endTimeNanos=epoch_time_nanos + (seconds * self.NANOS_PER_SECOND),
 			value=[dict(intVal=sleepType)]
 			)
 

@@ -46,11 +46,12 @@ def main():
 	weighTime = time.fromisoformat(params.get('weigh_time'))
 	convertor = Convertor(args.google_creds, params.get('project_number'), None, weighTime)
 	fitbitClient,googleClient = helper.GetFitbitClient(),helper.GetGoogleClient()
-	remote = Remote(fitbitClient, googleClient, convertor, helper)
+	remote = Remote(fitbitClient, googleClient, convertor, helper, None)
 
 	# Get user's time zone info from Fitbit -- since Fitbit time stamps are not epoch and stored in user's timezone.
 	userProfile = remote.ReadFromFitbit(fitbitClient.user_profile_get)
 	tzinfo = dateutil.tz.gettz(userProfile['user']['timezone'])
+	remote.UpdateTimezone(tzinfo)
 	convertor.UpdateTimezone(tzinfo)
 
 	# setup Google Fit data sources for each data type supported
